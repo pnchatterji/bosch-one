@@ -69,8 +69,9 @@ Or, if using VSCode with nrf Connect plugin, by entering -DBUILD_PDR:STRING="1" 
 the field "Extra CMake Argument" in the Build Configuration dialog.
 
 These are the qualifiers required for each sample:
-
 +---------------+------------------+-----------------------------------------------+
+| Sample Source	| Qualifiers       | Remarks                                       |
++===============+==================+===============================================+
 | main.C 		| no qualifiers    | Default Sample (Onboard Sensors)              |
 +---------------+------------------+-----------------------------------------------+
 | main_aux.c	| -DBUILD_AUX	   | Auxiliary Sensors Sample                      |
