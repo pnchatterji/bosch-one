@@ -71,23 +71,23 @@ the field "Extra CMake Argument" in the Build Configuration dialog.
 These are the qualifiers required for each sample:
 
 +---------------+------------------+-----------------------------------------------+
-| Sample Source	| Qualifiers       | Remarks                                       |
+| Sample Source	|  Qualifiers      | Remarks                                       |
 +===============+==================+===============================================+
-| main.C 		| no qualifiers    | Default Sample (Onboard Sensors)              |
+| main.C        | no qualifiers    | Default Sample (Onboard Sensors)              |
 +---------------+------------------+-----------------------------------------------+
-| main_aux.c	| -DBUILD_AUX	   | Auxiliary Sensors Sample                      |
+| main_aux.c    | -DBUILD_AUX      | Auxiliary Sensors Sample                      |
 +---------------+------------------+-----------------------------------------------+
-| main_bsec.c	| -DBUILD_BSEC 	   | Air Quality (BSEC) Sensor Sample              |
+| main_bsec.c   | -DBUILD_BSEC     | Air Quality (BSEC) Sensor Sample              |
 +---------------+------------------+-----------------------------------------------+
-| main_klio.c	| -DBUILD_KLIO     | AI Self-Learning (Klio) Sensor Sample         |  
+| main_klio.c   | -DBUILD_KLIO     | AI Self-Learning (Klio) Sensor Sample         |
 +---------------+------------------+-----------------------------------------------+
-| main_swim.c	| -DBUILD_SWIM     | Swim Sensor Sample                            |
+| main_swim.c   | -DBUILD_SWIM     | Swim Sensor Sample                            |
 +---------------+------------------+-----------------------------------------------+
-| main_pdr.c 	| -DBUILD_PDR      | Pedestrian Dead Reckoning (PDR) Sensor Sample | 
+| main_pdr.c    | -DBUILD_PDR      | Pedestrian Dead Reckoning (PDR) Sensor Sample |
 +---------------+------------------+-----------------------------------------------+
-| main_wake.c	| -DBUILD_WAKE     | Wakeup Features Sample                        |
+| main_wake.c   | -DBUILD_WAKE     | Wakeup Features Sample                        |
 +---------------+------------------+-----------------------------------------------+
-| main_custom.c |      x		   | Custom Virtual Sensor Sample (for info only)  |
+| main_custom.c |      x           | Custom Virtual Sensor Sample (for info only)  |
 +---------------+------------------+-----------------------------------------------+
 
 
@@ -103,11 +103,12 @@ Sample Output (For Default Sample)
 =================================
 
 .. code-block:: console
-Game Rotation: x: -3490, y: -9100, z: -12293, w: 4724; acc: 0; AT s:13 ns:235406250
-AX: 11205.000000; AY: 5813.000000; AZ: 17974.000000; GX: 3520.000000; GY: 6287.000000; GZ: 927.000000;
-Game Rotation: x: 5193, y: -15427, z: -1586, w: 967; acc: 0; AT s:14 ns:238500000
-Tilt Detected!
-AX: 14288.000000; AY: 5182.000000; AZ: -23371.000000; GX: -2164.000000; GY: -443.000000; GZ: 1273.000000;
-Game Rotation: x: 2492, y: -12171, z: -8572, w: 6371; acc: 0; AT s:15 ns:241531250
+
+	Game Rotation: x: -3490, y: -9100, z: -12293, w: 4724; acc: 0; AT s:13 ns:235406250
+	AX: 11205.000000; AY: 5813.000000; AZ: 17974.000000; GX: 3520.000000; GY: 6287.000000; GZ: 927.000000;
+	Game Rotation: x: 5193, y: -15427, z: -1586, w: 967; acc: 0; AT s:14 ns:238500000
+	Tilt Detected!
+	AX: 14288.000000; AY: 5182.000000; AZ: -23371.000000; GX: -2164.000000; GY: -443.000000; GZ: 1273.000000;
+	Game Rotation: x: 2492, y: -12171, z: -8572, w: 6371; acc: 0; AT s:15 ns:241531250
 
    <repeats endlessly>
