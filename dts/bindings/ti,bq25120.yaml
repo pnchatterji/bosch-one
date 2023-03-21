@@ -1,0 +1,37 @@
+description: TI BQ25120 Battery Manageer
+
+compatible: "ti,bq25120"
+
+include: i2c-device.yaml
+properties:
+    cd-gpios:
+        type: phandle-array
+        required: true
+        description: Host pin connected to BQ25120 Chip Disable (CD) pin
+
+    bat_reg_mv:
+        type: int
+        required: true
+        description: regulation voltage of battery in mv (3.6-4.65V)
+
+    ilim_ma:
+        type: int
+        required: true
+        description: Input current limit of device in mA. (50-400 mA)
+
+    bat_uvlo_mv:
+        type: int
+        required: true
+        description: Battery under-voltage lockout in mV (2.2-3 V, Disable UVLO:0)
+    
+    icharge_ma:
+        type: int
+        required: true
+        description: Charging current in mA (5-300mA, Disable Charger:0)
+
+    ipreterm_ua:
+        type: int
+        required: true
+        description: |
+            pre-charging current/terminating current in uA (500uA to 37000uA (37mA), Disable Termination:0)
+            This is charging current at start and end of charging, usually 10% of peak

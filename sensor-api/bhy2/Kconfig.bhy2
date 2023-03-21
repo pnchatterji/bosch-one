@@ -1,0 +1,11 @@
+#
+# Copyright (c) 2023 Bosch Sensortec GmbH
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+config BOSCH_BHY2
+	bool "BHY2 Sensor API"
+	default n
+	help
+	  Low-level device interface for BHIx60 devices

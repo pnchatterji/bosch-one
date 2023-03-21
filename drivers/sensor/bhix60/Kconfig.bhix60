@@ -1,0 +1,83 @@
+#
+# Copyright (c) 2023 Bosch Sensortec GmbH
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+config BHIX60
+	bool "BHIx60 driver"
+	default y
+	depends on DT_HAS_BOSCH_BHIX60_ENABLED
+	depends on HEAP_MEM_POOL_SIZE >= 2048
+	depends on MAIN_STACK_SIZE >= 8192
+	select SPI
+	select BOSCH_BHY2
+	help
+	  Enable BHIx60 smart sensor driver. The BHIx60 driver requires a heap and
+	  a larger than usual stack size to support the BHY2 Sensor API
+
+config BHIX60_STATUS_DEBUG
+	bool "BHIx60 status and debug FIFO"
+	default n
+	help
+	  Enables BHI260 FIFO for status and debug events
+
+choice BHIX60_BOOT_ACTION
+	bool "BHIx60 Boot Action"
+	default BHIX60_UPLOAD_FW_TO_RAM 
+config BHIX60_FLASH_AUTO_BOOT
+	bool "Auto boot BHIx60 from Flash"
+	help
+	  boot BHI260 from its flash at startup, if firmware has been pre-flashed
+config BHIX60_UPLOAD_FW_TO_RAM
+	bool "Upload FW to RAM and boot"
+	help
+	  upload app-defined FW to BHIx60 RAM, and boot from it 
+config BHIX60_UPLOAD_FW_TO_FLASH
+	bool "Upload FW to FLASH and boot"
+	help
+	  upload app-defined FW to BHIx60 FLASH, and boot from it 
+endchoice
+
+choice BHIX60_FIFO_MODE
+	prompt "FIFO processing mode"
+	help
+	  Specify how the BHIx60 FIFO will be processed.
+	default BHIX60_FIFO_POLL 
+config BHIX60_FIFO_POLL
+	bool "Poll the INT pin"
+	help
+	  The BHIx60 INT pin will be polled in a fetch loop.
+config BHIX60_FIFO_INT_GLOBAL_THREAD
+	bool "hw interrupt, global thread"
+	help
+	  Set BHIx60 INT pin as hw interrupt, handle in the global thread.
+config BHIX60_FIFO_INT_FIFO_THREAD
+	bool "hw interrupt, FIFO thread"
+	help
+	  Set BHIx60 INT pin as hw interrupt, handle in a special FIFO thread..
+endchoice
+
+config BHIX60_VIRTUAL_SENSORS_USED
+	int "Number of Virtual Sensors used by the application"
+	default 10
+	help
+	  The number of BHIx60 virtual sensors actually used by the application. This should be 
+	  set as precisely as possible. Setting it too large wastes RAM, as a mailbox slot is maintained
+	  for each virtual sensor used. Setting it too low can lead to runtime errors as all the required 
+	  virtual sensors cannot be initialized
+config BHIX60_MAX_SLOT_TRIGGERS 
+	int "Max triggers per virtual sensors"
+	default 2
+	help 
+		Maximum number of triggers supported per virtual sensor
+config BHIX60_FIFO_THREAD_STACK_SIZE
+	int "Stack size of FIFO thread"
+	default 1024
+	help 
+		Stack size of FIFO thread if CONFIG_BHIX60_FIFO_INT_FIFO_THREAD is active
+config BHIX60_FIFO_THREAD_PRIORITY
+	int "FIFO thread priority"
+	default 10
+	help 
+		Priority of FIFO thread if CONFIG_BHIX60_FIFO_INT_FIFO_THREAD is active

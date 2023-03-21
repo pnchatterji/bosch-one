@@ -1,0 +1,8 @@
+# Sub-manifest for bosch-one module from Bosch Sensortec GmbH
+# Required for using Bosch Sensortec sensor drivers and libraries in Zephyr
+manifest:
+  projects:
+    - name: bosch-one
+      path: bosch-one
+      revision: main
+      url: https://github.com/pnchatterji/bosch-one

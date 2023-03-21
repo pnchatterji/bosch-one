@@ -1,0 +1,5 @@
+description: Lumissil (ISSI) IS31FL3194 LED
+
+compatible: "issi,is31fl3194"
+
+include: i2c-device.yaml

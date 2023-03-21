@@ -1,0 +1,7 @@
+sample:
+  name: BHIX60 Sensor sample
+tests:
+  sample.sensor.bhix60:
+    harness: sensor
+    tags: samples sensor
+    depends_on: arduino_spi
