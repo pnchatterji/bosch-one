@@ -48,5 +48,11 @@ west update
 ```
 If the update is successful, there should now be subdirectory named *bosch-one* under *ncs/vx.y.z/* containing the Bosch Sensortec Zephyr Drivers, Sensor API, Libraries, Documents and Samples.
 
+Note: it is necessary to use the cmd console created by the *nrf Toolchain Manager*. If you open an ordinary Windows cmd console, the necessary environment variables are not set. If for some reason you do not wish to use *nrf Toolchain Manager*, you will need to set the environment variables yourself in the following manner:
+*cd* to *ncs/vx.y.z* and enter the following command:
+```
+zephyr\zephyr-env.cmd
+```
+
 ### Use Bosch-One to create a Zephyr application for Bosch Sensortec devices
 Refer the sample readme files in bosch-one/samples to build a Zephyr application for a supported Bosch Sensortec device. Detailed documentation is available under bosch-one/docs
