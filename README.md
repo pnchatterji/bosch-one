@@ -24,7 +24,7 @@ manifest:
       url: https://github.com/BoschSensortec/bosch-one
 
 ```
-Alternatively, copy the file *bosch-one.yaml* available in the bosch-one repository to *ncs/vx.y.z/nrf/zephyr/submanifests*
+Alternatively, copy the file *bosch-one.yaml* available in the bosch-one repository to *ncs/vx.y.z/zephyr/submanifests*
 and add *bosch-one* to the allowlist of zephyr project imports in *ncs/vx.y.z/nrf/west.yml*. The entry should be in 
 alphabetical order with respect to the other names in the allowlist. 
 ```
