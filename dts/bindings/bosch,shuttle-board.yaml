@@ -1,0 +1,17 @@
+# Copyright (c) 2022, Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+description: Sensor Shuttle Board GPIO control pins
+
+compatible: "bosch,shuttle-board"
+
+child-binding:
+    description: GPIO Pin for Sensor Shuttle Board control
+    properties:
+       gpios:
+          type: phandle-array
+          required: true
+       label:
+          required: true
+          type: string
+          description: description of shuttle board control pin

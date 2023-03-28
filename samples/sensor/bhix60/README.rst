@@ -53,10 +53,28 @@ References
 Wiring
 *******
 
-These samples are based on the arduino_nicla_sense_me board, which has an integrated BHI260AP sensor 
+These samples are tested on :
+
+1. The Arduino Nicla Sense ME board, which has an integrated BHI260AP sensor 
 connected via SPI to a host nRF52832, with BMP390 (pressure sensor), BMM150 (3-axis magnetometer) 
 and BME688 (environment sensor) as auxiliary sensors connected via i2c and SPI to the BHI260. 
-However, they can be adapted to any other board with a similar configuration.
+NOTE: The actual board definition to be used for building the samples is bst_ardunio_nicla
+which is a part of this repository, and not the arduino_nicla_sense_me board definition
+which is in the upstream Zephyr repository. The board definition bst_ardunio_nicla is pre-configured
+with Bosch Sensortec drivers that are available in this repository.
+ 
+2. The Bosch Application Board 3.0 with a BHI260AP shuttle board mounted on it.
+This shuttle board has a BHI260AP sensor that connects via SPI or I2C to the host nRF52832
+on the main board. Additionally, it has a BMP390, BMM150 and BME688 as auxiliary sensors 
+connected via i2c and SPI to the BHI260, as with the Nicla board. 
+
+However the connections details between BHI260 and the peripheral devices vary between the 
+shuttle board and Nicla, hence, in order to use the peripheral devices, it is
+necessary to use two different sets of firmware for the two boards. 
+This can be seen in the AUX and BSEC samples.
+
+These samples can be adapted to any other board with a similar configuration to either Nicla
+or AB3.
 
 Building and Running
 ********************
@@ -91,12 +109,20 @@ These are the qualifiers required for each sample:
 +---------------+------------------+-----------------------------------------------+
 
 
-In this example below the :ref:`arduino_nicla_sense_me` board is used.
+Build instructions for :ref:`bst_arduino_nicla` board.
 
 
 .. zephyr-app-commands::
    :zephyr-app: samples/sensor/bhix60
-   :board: arduino_nicla_sense_me
+   :board: bst_arduino_nicla
+   :goals: build flash
+
+Build instructions for :ref:`bst_ab3_nrf52840` board.
+
+
+.. zephyr-app-commands::
+   :zephyr-app: samples/sensor/bhix60
+   :board: bst_ab3_nrf52840
    :goals: build flash
 
 Sample Output (For Default Sample)

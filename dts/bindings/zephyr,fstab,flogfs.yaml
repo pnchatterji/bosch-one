@@ -1,0 +1,35 @@
+#Copyright (c) 2022 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+    FlogFS file system wrapper for Zephyr
+
+compatible: "zephyr,fstab,flogfs"
+
+include: "zephyr,fstab-common.yaml"
+
+properties:
+    sector_size:
+        type: int
+        required: true
+        description: size of sector in bytes
+    sectors_per_page:
+        type: int
+        required: true
+        description: number of sectors per page
+    pages_per_block:
+        type: int
+        required: true
+        description: pages per block
+    num_blocks:
+        type: int
+        required: true
+        description: number of blocks available (total blocks - reserve)        
+    pre_allocate_size:
+      type: int
+      required: true
+      description: pre-allocation size
+    inode0_max_block:
+      type: int
+      required: true
+      description: max blocks in inode0

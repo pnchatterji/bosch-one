@@ -1,0 +1,9 @@
+# Configuration for Arduino Nicla Sense ME board pre-configured 
+# for Bosch Sensortec Drivers and COINES library
+
+# Copyright (c) 2023 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_BST_ARDUINO_NICLA
+	bool "BST Arduino Nicla"
+	depends on SOC_NRF52832_QFAA

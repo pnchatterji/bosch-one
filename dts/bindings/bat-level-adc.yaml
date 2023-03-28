@@ -1,0 +1,35 @@
+# Copyright (c) 2020 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+description: Battery Level sensor using ADC and voltage divider 
+
+compatible: "bat-level-adc"
+
+# inherits from voltage divider bindings
+include: voltage-divider.yaml
+
+properties:
+    bat-max-mv:
+      type: int
+      required: true
+      description: max voltage (charging voltage) of battery in mv
+    bat-min-mv:
+      type: int
+      required: true
+      description: min voltage (cutoff voltage) of battery in mv
+    lut-delta:
+      type: int
+      required: true
+      description: |
+        delta mv corresponding to two successive entries in below mv-soc look-up-table. It should
+        be computed like this:
+        (uint32_t)(((bat_max_mv - bat_min_mv) / (sizeof(bat_mv_soc_lut)))+0.5);
+    bat-mv-soc-lut:
+      type: array
+      required: true
+      description: |
+        mv-soc look-up-table for battery. First is the soc corresponding to bat min voltage 
+        defined above and the final entry is the soc corresponding to bat max voltage. The delta 
+        mv between successive entries is defined above
+
+    

@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2022 Bosch Sensortec GmbH
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Overlay Device Tree Definitions for Bosch Sensortec Application Board 3.0 (Revision 2)
+ *
+ * Refer the note on Revisions in bst_ab3_nrf52840.dts for details 
+ */
+
+#define BST_AB3_REV4
+#include "bst_ab3_nrf52840_revs.dtsi"

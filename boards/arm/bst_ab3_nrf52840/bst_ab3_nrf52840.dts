@@ -1,0 +1,361 @@
+/*
+ * Copyright (c) 2022 Bosch Sensortec GmbH
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Common Device Tree Definitions for Bosch Sensortec Application Board 3.0
+ * This file contains the common definitions for AB3
+ *
+ *      NOTE ON REVISIONS
+ *      =================
+ * There are multiple alternative overlay DTS files for AB3.0 for different project configurations
+ * Each alternative allocates the I2C and SPI modules for the shuttle board ports 
+ * in a different way (in terms of pin allocation). Each overlay corresponds to a so-called
+ * "revision number". The project should be built with the revision number that 
+ * corresponds to its configuration. Note that "Revision" here actually means 
+ * "alternative configuration" as per the terminology used in the Zephyr Build System
+ *  
+ * 
+ * Rev No.		i2c1 					spi1 				spi2
+ *  1		primary_i2c_port		disabled			primary_spi_port [DEFAULT]
+ *  2		primary_i2c_port		disabled			aux_spi_port	
+ *  3		aux_i2c_port			disabled			primary_spi_port	
+ *  4		disabled				primary_spi_port	aux_spi_port
+ *
+ * Revision 1 is used by default if no revision is selected in the build. In this configuration
+ * the primary port of the shuttle can be either i2c or spi. The application code can decide at runtime
+ * which port is to be used (note that both cannot be used simultaneously, due to the design of the
+ * sensors. This is compatible with applications written for V2.6 and older of COINES. The downside 
+ * of this configuration is that the so-called "auxiliary ports" are not available (i.e. the OIS interface
+ * or external temp sensor on some shuttle boards.)
+ * Configurations 2, 3 and 4 are useful if access to the auxiliary ports is required. These are accessed by
+ * using the COINES_SPI_BUS_1 and COINES_I2C_BUS_1 as first argument to the COINES i2c and spi API. using 
+ * these arguments results in a runtime error in the default configuration, or in a configuration where one
+ * or the other is not supported.
+ * 
+ */
+
+/dts-v1/;
+#include <nordic/nrf52840_qiaa.dtsi>
+#include "bst_ab3_nrf52840-pinctrl.dtsi"
+
+/ {
+	model = "BST-AB3-NRF52840";
+	compatible = "nordic,bst-ab3-nrf52840";
+
+	chosen {
+		zephyr,console = &uart_dev;
+		zephyr,shell-uart = &uart_dev;
+		zephyr,bt-c2h-uart = &uart_dev;
+		zephyr,sram = &sram0;
+		zephyr,flash = &flash0;
+		zephyr,code-partition = &slot0_partition;
+	};
+
+	led_rgb: leds {
+		compatible = "gpio-leds";
+		label = "leds";
+		led_blue: led0: led_0 {
+			gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
+			label = "Blue LED";
+		};
+		led_green: led1: led_1 {
+			gpios = <&gpio0 11 GPIO_ACTIVE_LOW>;
+			label = "Green LED";
+		};
+		led_red: led2: led_2 {
+			gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
+			label = "Red LED";
+		};
+	};
+	
+	buttons {
+		compatible = "gpio-keys";
+		button_t1: button0: button_0 {
+			gpios = <&gpio1 9 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Pushbutton T1";
+		};
+		button_t2: button1: button_1 {
+			gpios = <&gpio0 25 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Pushbutton T2";
+		};
+	};
+	/* These aliases are provided for compatibility with samples */
+	aliases {
+		led0 = &led0;
+		led1 = &led1;
+		led2 = &led2;
+		sw0 = &button0;
+		sw1 = &button1;
+	};
+	
+	/*littlefs and FlogFS partitions on external spi flash*/
+	fstab {
+		compatible = "zephyr,fstab";
+		lfs1: lfs1 {
+			compatible = "zephyr,fstab,littlefs";
+			mount-point = "/lfs1";
+			partition = <&lfs1_part>;
+			automount;
+			
+			read-size = <64>;
+			prog-size = <64>;
+			cache-size = <256>;
+			lookahead-size = <128>;
+			block-cycles = <512>; 
+			
+		};
+		flog0: flog0 {
+			compatible = "zephyr,fstab,flogfs";
+			mount-point = "/flog0";
+			partition = <&flog0_part>;
+			automount;
+			sector_size = <512>;
+			sectors_per_page = <4>;
+			pages_per_block = <64>;
+			num_blocks = <2008>;
+			pre_allocate_size = <10>;
+			inode0_max_block = <32>;
+		};
+	};
+	zephyr,user {
+		/* adjust channel number according to pinmux in board.dts */
+		io-channels = <&adc 7>;
+	};
+	/*settings for Battery measurement analog input and voltage divider*/
+	bat_level: vbatt {
+            compatible = "bat-level-adc"; //"voltage-divider";
+			label = "vbatt";
+            io-channels = <&adc 7>;						/*BATT MEAS is connected to AIN7 (P0.31)*/
+            output-ohms = <180000>;
+            full-ohms = <(300000 + 180000)>;			/*R1=300kohm R2=180kohm in AB3.0*/
+            power-gpios = <&gpio0 2 GPIO_ACTIVE_LOW>; 	/*VBAT-MON-EN is P0.02, Active Low*/
+
+			bat-max-mv = <4200>;						/*max voltage (charging voltage) of battery in mv*/
+		    bat-min-mv = <3000>; 						/* min voltage (cutoff voltage) of battery in mv*/
+			
+		  	/*delta mv corresponding to two successive entries in below mv-soc look-up-table. It should
+			be computed like this:
+			(uint32_t)(((bat_max_mv - bat_min_mv) / (sizeof(bat_mv_soc_lut)))+0.5);*/
+		  	lut-delta = <11>;
+
+			/*mv-soc look-up-table for battery. First entry is the soc corresponding to bat min voltage 
+			defined above and the final entry is the soc corresponding to bat max voltage. The delta 
+			mv between successive entries is defined above*/
+		  	bat-mv-soc-lut = <
+				0  0  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  2
+				2  2  2  2  2  2  2  2  3  3  3  3  3  3  3  4  4  4  4  4
+				4  5  5  5  6  6  7  7  8  8  9  9 10 11 12 13 13 14 15 16
+				18 19 22 25 28 32 36 40 44 47 51 53 56 58 60 62 64 66 67 69
+				71 72 74 76 77 79 81 82 84 85 85 86 86 86 87 88 88 89 90 91
+				91 92 93 94 95 96 97 98 99 100 100
+			>;
+    };
+	
+	/*Shuttle Board Control Pins*/
+	shuttle_board {
+		compatible = "bosch,shuttle-board";
+		shuttle_vdd_sel: shuttle_vdd_sel {
+			gpios = <&gpio0 27 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle VDD Select";
+		};
+		shuttle_vdd_en: shuttle_vdd_en {
+			gpios = <&gpio0 3 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle VDD Enable";
+		};
+		shuttle_vddio_en: shuttle_vddio_en {
+			gpios = <&gpio0 28 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle VDDIO Enable";
+		};
+		shuttle_gpio0: shuttle_pin_1_4: shuttle_gpio0 {
+			gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle GPIO0";
+		};
+		shuttle_gpio1: shuttle_pin_1_5: shuttle_gpio1 {
+			gpios = <&gpio1 13 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle GPIO1";
+		};
+		shuttle_gpio2_int1: shuttle_pin_1_6: shuttle_gpio2_int1 {
+			gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle GPIO2/INT1";
+		};
+		shuttle_gpio3_int2: shuttle_pin_1_7: shuttle_gpio3_int2 {
+			gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle GPIO3/INT2";
+		};
+		shuttle_cs: shuttle_pin_2_1: shuttle_cs {
+			gpios = <&gpio0 24 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle Chip Select";
+		};
+		shuttle_sck_scl: shuttle_pin_2_2: shuttle_sck_scl {
+			gpios = <&gpio0 16 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle SCK/SCL";
+		};
+		shuttle_sdo: shuttle_pin_2_3: shuttle_sdo {
+			gpios = <&gpio0 15 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle SDO";
+		};
+		shuttle_sdi_sda: shuttle_pin_2_4: shuttle_sdi_sda {
+			gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle SDI/SDA";
+		};
+		shuttle_gpio4_ocsb: shuttle_pin_2_5: shuttle_gpio4_ocsb {
+			gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle GPIO4/OCSB";
+		};
+		shuttle_gpio5_ascx: shuttle_pin_2_6: shuttle_gpio5_ascx {
+			gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle GPIO5/ASCx";
+		};
+		shuttle_gpio6_osdo: shuttle_pin_2_7: shuttle_gpio6_osdo {
+			gpios = <&gpio1 11 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle GPIO6/OSDO";
+		};
+		shuttle_gpio7_asdx: shuttle_pin_2_8: shuttle_gpio7_asdx {
+			gpios = <&gpio1 10 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle GPIO7/ASDx";
+		};
+		shuttle_prom_rw: shuttle_pin_2_9: shuttle_prom_rw {
+			gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle PROM RW";
+		};
+	};
+};
+
+&gpiote {
+	status = "okay";
+};
+
+&gpio0 {
+	label = "GPIO_0";
+	status = "okay";
+};
+
+&gpio1 {
+	label = "GPIO_1";
+	status = "okay";
+};
+
+&adc {
+	status = "okay";
+};
+
+/*i2c0 is always used for the onboard temp sensor TM112, PMIC and external sensors*/
+&i2c0 {
+	compatible = "nordic,nrf-twi";
+	status = "okay";
+	label = "I2C_0";
+	//sda-pin = <29>;
+	//scl-pin = <26>;
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-1 = <&i2c0_sleep>;
+	pinctrl-names = "default", "sleep";
+	temp_dev: tmp112@48 {
+		compatible = "ti,tmp112";
+		/* For Temperature I2C of Application Board 3.0. 
+		It has the I2C slave device address of 0x48 */
+		reg = <0x48>;
+		label = "TMP112";
+	};
+};
+
+
+/* For External Flash SPI of Application Board 3.0 
+SPI3 is being used as it is the only SPI module compatible 
+with 32Mhz operation. This is also possible only in SPIM mode
+(SPI with EasyDMA)*/
+&spi3 {
+	compatible = "nordic,nrf-spim";
+	status = "okay";
+	label = "SPI_3";
+	//sck-pin  = <19>;
+	//mosi-pin = <20>;
+	//miso-pin = <21>;
+	pinctrl-0 = <&spi3_default>;
+	pinctrl-1 = <&spi3_sleep>;
+	pinctrl-names = "default", "sleep";
+	cs-gpios   = <&gpio0 17 GPIO_ACTIVE_LOW>;
+	/*External Flash*/
+	/*Valid for Winbond NAND SPI devices W25M02GW,W25N01GW and W25N02JW*/
+	nandflashspi:w25nandspi@0 {
+		compatible = "winbond,spim-nand";
+		spi-max-frequency = <32000000>; /*32 Mhz (previously 8)*/
+		reg = <0>;
+		label = "W25NANDSPI";
+		hold-gpios = <&gpio0 23 GPIO_ACTIVE_HIGH>;
+		wp-gpios   = <&gpio0 22 GPIO_ACTIVE_HIGH>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			/*Both FlogFS and LittleFS use the same partition (viz the full external flash).
+			 Only one should be activated in prj.conf. 
+			 If both are to be used simultaneously, two partitions should be defined below*/
+			flog0_part: lfs1_part: partition@0 {
+				label = "storage";
+				reg = <0x00000000 0x0FB00000>; /*512*4*64*2008=263192576 = 0xFB00000*/
+			};
+		};
+	};	
+};
+
+&flash0 {
+
+	partitions {
+		compatible = "fixed-partitions";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		/*
+		 * The following partitions are pre-flashed on Application Board 3.0
+		 * 0x000000000 (160kB) : Nordic Semiconductor Soft Device S140 with Bluetooth Stack
+		 * 0x000028000 (32kB)  : USB MTP Firmware
+		 * 0x000030000 (768kB) : Application
+		 * 0x0000f0000 (64kB)  : USB DFU Bootloader
+		 * The range from 0x00030000 to 0x0000f0000 is avaiable for the application
+		 * This is divided into slot0 (360kB), slot1 (360kB) and scratch (64kB) to enable firmware 
+		 * upgrade feature. If this is not required, a single slot0 of 768kb can be defined
+		 * Code RAM 0x00800000 (256kB)
+		 * Above pre-flashed sectors are not used by ZCOINES. Slot0 can be started from 0x0000 
+		 * if compatability with old COINES is not required 
+		 */
+/*		sd_partition: partition@0 {
+			label = "nssd-s140";
+			reg = <0x000000000 0x00028000>;
+		};
+		mtp_partition: partition@28000 {
+			label = "usb-mtp";
+			reg = <0x000028000 0x00008000>;
+		};	
+		slot0_partition: partition@30000 {
+			label = "image-0";
+			reg = <0x00030000 0x00058000>;
+		};
+		slot1_partition: partition@88000 {
+			label = "image-1";
+			reg = <0x00088000 0x00058000>;
+		};
+		scratch_partition: partition@e0000 {
+			label = "image-scratch";
+			reg = <0x000e0000 0x00010000>;
+		};*/
+		slot0_partition: partition@30000 {
+			label = "image-0";
+			reg = <0x00030000 0x000C0000>;
+		};
+		boot_partition: partition@f0000 {
+			label = "mcuboot";
+			reg = <0x000f0000 0x00010000>;
+		};
+	};
+};
+
+zephyr_udc0: &usbd {
+	compatible = "nordic,nrf-usbd";
+	status = "okay";
+	
+	uart_dev: cdc_acm_uart {
+		compatible = "zephyr,cdc-acm-uart";
+		label = "CDC_ACM_0";
+	};
+};

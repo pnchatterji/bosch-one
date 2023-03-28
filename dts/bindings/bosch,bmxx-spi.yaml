@@ -1,0 +1,11 @@
+# Copyright (c) 2020 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+description: Bosch BHI260 smart sensor 
+
+# bmxx_spi represents the primary SPI interface of a BST sensor
+# chip mounted on an Application Board Shuttle Board
+
+compatible: "bosch,bmxx-spi"
+
+include: spi-device.yaml
