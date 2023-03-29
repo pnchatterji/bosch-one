@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <device.h>
-#include <drivers/gpio.h>
-#include <usb/usb_device.h>
-#include <init.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/gpio.h>
+#include <zephyr/usb/usb_device.h>
+#include <zephyr/init.h>
 
 /*configuation flag to select 1.8V or 2.8 V for shuttle board VDD*/
 #ifdef CONFIG_BST_AB3_NRF52840_SELECT_VDD_2_8

@@ -11,7 +11,7 @@
  * data-ready triggers, threshold triggers and event triggers 
  */
 
-#include <zephyr/zephyr.h>
+#include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/sensor.h>
 #include <stdio.h>

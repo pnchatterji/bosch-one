@@ -13,7 +13,7 @@
  * to the user to create a suitable firmware using the BHY2 Firmware SDK  
  */
 
-#include <zephyr/zephyr.h>
+#include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/sensor.h>
 #include <stdio.h>

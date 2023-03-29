@@ -7,7 +7,7 @@
  */
 
 #include "bhix60_int.h"
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 /*redefine the following constants here to avoid including
 advanced sensor headers, which may not be available in some projects*/
 #define BHY2_SENSOR_ID_SWIM	     UINT8_C(114)

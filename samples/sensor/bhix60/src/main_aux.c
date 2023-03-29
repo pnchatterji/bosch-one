@@ -9,7 +9,7 @@
  * exceeds +/- 150 degrees ).
  */
 
-#include <zephyr/zephyr.h>
+#include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <stdio.h>
 #include <bhix60.h>

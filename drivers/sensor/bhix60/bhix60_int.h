@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 #include <bhy2.h>
-#include <drivers/sensor.h>
+#include <zephyr/drivers/sensor.h>
 
 int bhix60_data_conv(enum sensor_channel chan,uint8_t *data,
 			uint16_t range, struct sensor_value *val);

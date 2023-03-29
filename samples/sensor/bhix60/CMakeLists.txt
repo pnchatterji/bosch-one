@@ -8,7 +8,8 @@ cmake_minimum_required(VERSION 3.20.0)
 
 #add AB3 specific configurations
 if("${BOARD}" STREQUAL "bst_ab3_nrf52840")
-	list(APPEND CONF_FILE "bst_ab3_nrf52840_overlay.conf")
+	set(CONF_FILE "prj.conf")
+	list(APPEND CONF_FILE "boards/bst_ab3_nrf52840_overlay.conf")
 endif()
 
 find_package(Zephyr HINTS $ENV{ZEPHYR_BASE})

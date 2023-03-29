@@ -17,14 +17,14 @@
  * way to retain critical data on RAM between restarts. 
  */
 
-#include <zephyr/zephyr.h>
+#include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/sensor.h>
 #include <stdio.h>
 #include <zephyr/pm/pm.h>
 #include <zephyr/pm/device.h>
 #include <zephyr/pm/policy.h>
-#include <drivers/gpio.h>
+#include <zephyr/drivers/gpio.h>
 #include <hal/nrf_gpio.h>
 /*Define application specific firmware to be uploaded*/
 #include <bhix60.h>

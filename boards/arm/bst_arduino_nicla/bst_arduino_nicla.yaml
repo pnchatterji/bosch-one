@@ -1,5 +1,5 @@
-identifier: arduino_nicla_sense_me
-name: Arduino Nicla Sense ME
+identifier: bst_arduino_nicla
+name: BST Arduino Nicla
 type: mcu
 arch: arm
 ram: 64

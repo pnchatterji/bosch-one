@@ -227,5 +227,6 @@ uart_dev: &uart0 {
 		storage_partition: partition@7a000 {
 			label = "storage2"; 
 			reg = <0x0007a000 0x00006000>;
+		};
 	};
 };

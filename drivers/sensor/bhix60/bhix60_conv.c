@@ -6,9 +6,9 @@
  * @file: Data conversion functions Zephyr Sensor API data format <to/from> BHIx60 FIFO data format 
  */
 
-#include <drivers/sensor.h>
+#include <zephyr/drivers/sensor.h>
 #include <bhix60.h>
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 LOG_MODULE_DECLARE(bhix60, CONFIG_SENSOR_LOG_LEVEL);
 
 /*Input: Quaternion X,Y,Z,W, (range -1 to 1) and Accuracy (radians) ,

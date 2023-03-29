@@ -9,7 +9,7 @@
   * 
   * SPDX-License-Identifier: Apache-2.0
   */
-#include <zephyr.h>
+#include <zephyr/kernel.h>
 #include <bhix60.h>
 #include <bhy2_pdr.h>
 

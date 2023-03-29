@@ -13,8 +13,8 @@
   * 
   * SPDX-License-Identifier: Apache-2.0
   */
-#include <zephyr.h>
-#include <drivers/sensor.h>
+#include <zephyr/kernel.h>
+#include <zephyr/drivers/sensor.h>
 #include <bhy2.h>
 #include <bhy2_parse.h>
 

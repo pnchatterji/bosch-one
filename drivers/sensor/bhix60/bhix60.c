@@ -12,15 +12,15 @@
 /*Zephyr includes*/
 #define DT_DRV_COMPAT bosch_bhix60
 
-#include <drivers/spi.h>
-#include <init.h>
-#include <drivers/sensor.h>
-#include <pm/device.h>
-#include <sys/__assert.h>
+#include <zephyr/drivers/spi.h>
+#include <zephyr/init.h>
+#include <zephyr/drivers/sensor.h>
+#include <zephyr/pm/device.h>
+#include <zephyr/sys/__assert.h>
 #include <string.h>
-#include <sys/byteorder.h>
-#include <drivers/gpio.h>
-#include <logging/log.h>
+#include <zephyr/sys/byteorder.h>
+#include <zephyr/drivers/gpio.h>
+#include <zephyr/logging/log.h>
 #include <stdio.h>
 LOG_MODULE_REGISTER(bhix60, CONFIG_SENSOR_LOG_LEVEL);
 
