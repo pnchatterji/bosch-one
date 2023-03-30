@@ -17,13 +17,13 @@ slave devices is different on the two boards (SPI v/s I2C)*/
 	/*Valid for Nicla or compatible
 	NOTE: CONFIG_BHIX60_UPLOAD_FW_TO_FLASH=y has to be set in prj.conf in this case, as
 	the Nicla firmware below is only suitable for FLASH*/
-	#include <firmware/fw.h>
+	#include <firmware/arduino_nicla_sense_me/arduino_nicla_sense_me.fw.h>
 	#define bhy2_firmware_image BHI260AP_NiclaSenseME_flash_fw
 #else 
 	/*valid for Bosch AB3 with BHIx60 Shuttle Board, or compatible
 	NOTE: CONFIG_BHIX60_UPLOAD_FW_TO_RAM=y has to be set in prj.conf in this case, as
 	the below firmware is only suitable for RAM*/
-	#include <firmware/bhi260ap/BHI260AP_BMM150_BMP390_BME688.fw.h>
+	#include <firmware/bhi260ap/BHI260AP_aux_BMM150_BMP390_BME688.fw.h>
 #endif
 
 int bhix60_get_firmware(const struct device *dev, unsigned char **fw,unsigned int *fw_sz)

@@ -6,3 +6,7 @@ manifest:
       path: bosch-one
       revision: main
       url: https://github.com/pnchatterji/bosch-one
+    - name: bhy2
+      path: bosch-one/sensor-api/bhy2
+      revision: main
+      url: https://github.com/BoschSensortec/BHY2-Sensor-API

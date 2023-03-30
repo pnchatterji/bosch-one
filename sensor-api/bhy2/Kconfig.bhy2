@@ -9,3 +9,23 @@ config BOSCH_BHY2
 	default n
 	help
 	  Low-level device interface for BHIx60 devices
+config BOSCH_BHY2_SWIM
+	bool "BHY2 Sensor API for SWIM"
+	depends on BOSCH_BHY2
+	default n
+config BOSCH_BHY2_PDR
+	bool "BHY2 Sensor API for PDR"
+	depends on BOSCH_BHY2
+	default n
+config BOSCH_BHY2_KLIO
+	bool "BHY2 Sensor API for KLIO"
+	depends on BOSCH_BHY2
+	default n
+config BOSCH_BHY2_BSEC
+	bool "BHY2 Sensor API for BSEC"
+	depends on BOSCH_BHY2
+	default n
+config BOSCH_BHI3
+	bool "BHI3 Sensor API"
+	depends on BOSCH_BHY2
+	default n

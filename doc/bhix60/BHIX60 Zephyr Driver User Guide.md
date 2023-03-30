@@ -840,16 +840,16 @@ The following table lists the Extended Sensor Channels defined in bhix60.h, and 
 | SENSOR\_CHAN\_BHIX60\_PROX   | 147 | Proximity |   |   | Num | DATA\_READY |
 | SENSOR\_CHAN\_BHIX60\_LIGHT\_WU  | 148 | Light wake up | yes |   | Light | THRESHOLD, DATA\_READY |
 | SENSOR\_CHAN\_BHIX60\_PROX\_WU   | 149 | Proximity wake up | yes |   | Num | DATA\_READY |
-| SENSOR\_CHAN\_BHIX60\_MULTI\_TAP  | 153 | Multi-tap detector (wear/hear) |   |   | Multi-Tap | DATA\_READY |
-| SENSOR\_CHAN\_BHIX60\_ACTIVITY  | 154 | Activity recognition (wear/hear) |   |   | Activity | DATA\_READY |
-| SENSOR\_CHAN\_BHIX60\_WRIST\_GEST | 156 | Wrist gesture |   |   | Event | WRIST\_TILT\_GEST |
-| SENSOR\_CHAN\_BHIX60\_WRIST\_WEAR\_WU   | 158 | Wrist wear wake-up |   |   | Event | WRIST\_TILT\_GEST |
-| SENSOR\_CHAN\_BHIX60\_NO\_MOTION  | 159 | No motion detector |   |   | Event | STATIONARY |
-| **COMPLEX SENSORS** |   |   |   |   |   |   |
 | SENSOR\_CHAN\_BHIX60\_KLIO | 112 | Sef-learning AI (KLIO) |   |   | KLIO | DATA\_READY |
 | SENSOR\_CHAN\_BHIX60\_PDR | 113 | Pedestrian Dead Reckoning (PDR) |   |   | PDR | DATA\_READY |
 | SENSOR\_CHAN\_BHIX60\_SWIM | 114 | Swim |   |   | SWIM | DATA\_READY |
 | SENSOR\_CHAN\_BHIX60\_AIR\_Q | 115 | Air Quality (BSEC) |   |   | BSEC | DATA\_READY |
+| **BHI360 SPECIFIC SENSORS** |   |   |   |   |   |   |
+| SENSOR\_CHAN\_BHI3\_MULTI\_TAP  | 153 | Multi-tap detector (wear/hear) |   |   | Multi-Tap | DATA\_READY |
+| SENSOR\_CHAN\_BHI3\_AR\_WEAR\_WU  | 154 | Activity recognition (wear/hear) |   |   | Activity | DATA\_READY |
+| SENSOR\_CHAN\_BHI3\_WRIST\_GEST\_LP\_WU | 156 | Wrist gesture |   |   | Event | WRIST\_TILT\_GEST |
+| SENSOR\_CHAN\_BHI3\_WRIST\_WEAR\_LP\_WU   | 158 | Wrist wear wake-up |   |   | Event | WRIST\_TILT\_GEST |
+| SENSOR\_CHAN\_BHI3\_NO\_MOTION\_LP\_WU  | 159 | No motion detector |   |   | Event | STATIONARY |
 | **CUSTOM CHANNELS** |   |   |   |   |   |   |
 | SENSOR\_CHAN\_BHIX60\_XXXX | 160-191 | User Defined Channels | ? | ? | Custom | DATA\_READY |
 

@@ -89,7 +89,7 @@ the field "Extra CMake Argument" in the Build Configuration dialog.
 These are the qualifiers required for each sample:
 
 +---------------+------------------+-----------------------------------------------+
-| Sample Source	|  Qualifiers      | Remarks                                       |
+| Sample Source |  Qualifiers      |      Remarks                                  |
 +===============+==================+===============================================+
 | main.C        | no qualifiers    | Default Sample (Onboard Sensors)              |
 +---------------+------------------+-----------------------------------------------+
@@ -105,9 +105,31 @@ These are the qualifiers required for each sample:
 +---------------+------------------+-----------------------------------------------+
 | main_wake.c   | -DBUILD_WAKE     | Wakeup Features Sample                        |
 +---------------+------------------+-----------------------------------------------+
+| main_bhi3.c   | -DBUILD_BHI3     | BHI3 Sample                                   |
++---------------+------------------+-----------------------------------------------+
 | main_custom.c |      x           | Custom Virtual Sensor Sample (for info only)  |
 +---------------+------------------+-----------------------------------------------+
 
+Additionally, in order to build the samples for the advanced sensors like SWIM, PDR, etc.
+the corresponding options below needs to be activated in prj.conf 
+
++---------------+----------------------------+
+| Sample Source |  Config option             |
++===============+============================+
+| main_bsec.c   | CONFIG_BOSCH_BHY2_BSEC=y   |
++---------------+----------------------------+
+| main_klio.c   | CONFIG_BOSCH_BHY2_KLIO=y   |
++---------------+----------------------------+
+| main_swim.c   | CONFIG_BOSCH_BHY2_SWIM=y   |
++---------------+----------------------------+
+| main_pdr.c    | CONFIG_BOSCH_BHY2_PDR=y    |
++---------------+----------------------------+
+| main_wake.c   | CONFIG_PM=y                |   
+|               | CONFIG_PM_DEVICE=y         |
+|               | CONFIG_PM_DEVICE_RUNTIME=y |
++---------------+----------------------------+
+| main_bhi3.c   | CONFIG_BOSCH_BHY2_BHI3=y   |
++---------------+----------------------------+
 
 Build instructions for :ref:`bst_arduino_nicla` board.
 
