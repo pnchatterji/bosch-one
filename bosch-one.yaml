@@ -2,10 +2,6 @@
 # Required for using Bosch Sensortec sensor drivers and libraries in Zephyr
 manifest:
   projects:
-    - name: bosch-one
-      path: bosch-one
-      revision: main
-      url: https://github.com/pnchatterji/bosch-one
     - name: bhy2
       path: bosch-one/sensor-api/bhy2
       revision: v1.5.0
