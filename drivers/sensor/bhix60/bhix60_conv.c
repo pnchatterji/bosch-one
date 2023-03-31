@@ -8,6 +8,8 @@
 
 #include <zephyr/drivers/sensor.h>
 #include <bhix60.h>
+#include <bhix60_bhi3.h>
+#include <bhix60_multi_tap.h>
 #include <zephyr/logging/log.h>
 LOG_MODULE_DECLARE(bhix60, CONFIG_SENSOR_LOG_LEVEL);
 
@@ -241,12 +243,12 @@ int bhix60_data_conv(enum sensor_channel chan,uint8_t *data,
 		case SENSOR_CHAN_STEP_CNT:
 		case SENSOR_CHAN_BHIX60_STC:
 		case SENSOR_CHAN_BHIX60_STC_WU:
-		case SENSOR_CHAN_BHIX60_STC_HW:
-		case SENSOR_CHAN_BHIX60_STC_HW_WU:
+		case SENSOR_CHAN_BHIX60_STC_LP:
+		case SENSOR_CHAN_BHIX60_STC_LP_WU:
 			channel_num_convert(val, BHY2_LE2U32(data),range);				
 			break;
 		case SENSOR_CHAN_BHIX60_AR:				/*16 bit bit field*/
-		case SENSOR_CHAN_BHIX60_ACTIVITY:
+		case SENSOR_CHAN_BHI3_AR_WEAR_WU:  		//TODO: Verfify if event or data type sensor
 			channel_num_convert(val, BHY2_LE2U16(data),range);				
 			break;
 		case SENSOR_CHAN_CAMERA_SHUTTER:
@@ -327,16 +329,15 @@ bool bhix60_is_event_chan(enum sensor_channel chan)
 		case SENSOR_CHAN_BHIX60_STATIONARY_DET:
 		case SENSOR_CHAN_BHIX60_MOTION_DET:
 		case SENSOR_CHAN_BHIX60_STD_WU:
-		case SENSOR_CHAN_BHIX60_STD_HW:
-		case SENSOR_CHAN_BHIX60_SIG_HW:
-		case SENSOR_CHAN_BHIX60_STD_HW_WU:
-		case SENSOR_CHAN_BHIX60_SIG_HW_WU:
-		case SENSOR_CHAN_BHIX60_ANY_MOTION:
-		case SENSOR_CHAN_BHIX60_ANY_MOTION_WU:
-		case SENSOR_CHAN_BHIX60_MULTI_TAP:
-		case SENSOR_CHAN_BHIX60_WRIST_GEST:
-		case SENSOR_CHAN_BHIX60_WRIST_WEAR_WU:
-		case SENSOR_CHAN_BHIX60_NO_MOTION:
+		case SENSOR_CHAN_BHIX60_STD_LP:
+		case SENSOR_CHAN_BHIX60_SIG_LP:
+		case SENSOR_CHAN_BHIX60_STD_LP_WU:
+		case SENSOR_CHAN_BHIX60_SIG_LP_WU:
+		case SENSOR_CHAN_BHI3_AR_WEAR_WU:  //TODO: Verfify if event or data type sensor
+		case SENSOR_CHAN_BHI3_MULTI_TAP:
+		case SENSOR_CHAN_BHI3_WRIST_GEST_LP_WU:
+		case SENSOR_CHAN_BHI3_WRIST_WEAR_LP_WU:
+		case SENSOR_CHAN_BHI3_NO_MOTION_LP_WU:
 		/*Zephyr Channels (proposed)*/
 		case SENSOR_CHAN_SIG_MOTION:
 		case SENSOR_CHAN_STEP:
@@ -586,12 +587,12 @@ int bhix60_thresh_conv(enum sensor_channel chan,const struct sensor_value *val,
 		case SENSOR_CHAN_STEP_CNT:
 		case SENSOR_CHAN_BHIX60_STC:
 		case SENSOR_CHAN_BHIX60_STC_WU:
-		case SENSOR_CHAN_BHIX60_STC_HW:
-		case SENSOR_CHAN_BHIX60_STC_HW_WU:
+		case SENSOR_CHAN_BHIX60_STC_LP:
+		case SENSOR_CHAN_BHIX60_STC_LP_WU:
 			channel_num_thresh(val, thresh,range);				
 			break;
-		case SENSOR_CHAN_BHIX60_AR:				/*16 bit bit field*/
-		case SENSOR_CHAN_BHIX60_ACTIVITY:
+		case SENSOR_CHAN_BHIX60_AR:				/*16 bit bitfield*/
+		case SENSOR_CHAN_BHI3_AR_WEAR_WU:		//TODO: Verfify if event or data type sensor
 			channel_num_thresh(val, thresh,range);				
 			break;
 		case SENSOR_CHAN_CAMERA_SHUTTER:

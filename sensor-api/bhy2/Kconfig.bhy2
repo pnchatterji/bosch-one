@@ -25,7 +25,7 @@ config BOSCH_BHY2_BSEC
 	bool "BHY2 Sensor API for BSEC"
 	depends on BOSCH_BHY2
 	default n
-config BOSCH_BHI3
+config BOSCH_BHY2_BHI3
 	bool "BHI3 Sensor API"
 	depends on BOSCH_BHY2
 	default n

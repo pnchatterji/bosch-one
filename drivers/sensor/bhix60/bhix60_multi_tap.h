@@ -32,7 +32,7 @@ enum sensor_channel_bhix60_MT {
  * @param timestamp time at which data was recorded (in nanoseconds since start of app)
  * @return  0 on success, errno on failure 
  */
-static inline int bhix60_get_wrist_gest_data(const struct device *dev,
+static inline int bhix60_get_multi_tap_data(const struct device *dev,
 			      uint8_t *multi_tap_data,
 				  uint64_t *timestamp){
     return bhix60_channel_parse_get(dev,SENSOR_CHAN_BHI3_MULTI_TAP,

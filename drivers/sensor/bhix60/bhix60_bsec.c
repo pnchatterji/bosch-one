@@ -6,9 +6,9 @@
  * @file: Support functions for BSEC Air Quality sensor
  */
 
-#include <drivers/sensor.h>
+#include <zephyr/drivers/sensor.h>
 #include <bhix60.h>
-#include <logging/log.h>
+#include <zephyr/logging/log.h>
 #include <bhix60_bsec.h>
 
 LOG_MODULE_DECLARE(bhix60, CONFIG_SENSOR_LOG_LEVEL);

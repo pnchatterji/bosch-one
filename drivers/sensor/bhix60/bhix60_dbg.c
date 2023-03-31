@@ -465,28 +465,28 @@ const char* bhix60_get_sensor_name(uint8_t sensor_id)
         case BHY2_SENSOR_ID_GAS_WU:
             ret = "Gas wake up";
             break;
-        case BHY2_SENSOR_ID_STC_HW:
-            ret = "Hardware Step counter";
+        case BHY2_SENSOR_ID_STC_LP:
+            ret = "Low Power Step counter";
             break;
-        case BHY2_SENSOR_ID_STD_HW:
-            ret = "Hardware Step detector";
+        case BHY2_SENSOR_ID_STD_LP:
+            ret = "Low Power Step detector";
             break;
-        case BHY2_SENSOR_ID_SIG_HW:
-            ret = "Hardware Significant motion";
+        case BHY2_SENSOR_ID_SIG_LP:
+            ret = "Low Power Significant motion";
             break;
-        case BHY2_SENSOR_ID_STC_HW_WU:
-            ret = "Hardware Step counter wake up";
+        case BHY2_SENSOR_ID_STC_LP_WU:
+            ret = "Low Power Step counter wake up";
             break;
-        case BHY2_SENSOR_ID_STD_HW_WU:
-            ret = "Hardware Step detector wake up";
+        case BHY2_SENSOR_ID_STD_LP_WU:
+            ret = "Low Power Step detector wake up";
             break;
-        case BHY2_SENSOR_ID_SIG_HW_WU:
-            ret = "Hardware Significant motion wake up";
+        case BHY2_SENSOR_ID_SIG_LP_WU:
+            ret = "Low Power Significant motion wake up";
             break;
-        case BHY2_SENSOR_ID_ANY_MOTION:
+        case BHY2_SENSOR_ID_ANY_MOTION_LP:
             ret = "Any motion";
             break;
-        case BHY2_SENSOR_ID_ANY_MOTION_WU:
+        case BHY2_SENSOR_ID_ANY_MOTION_LP_WU:
             ret = "Any motion wake up";
             break;
         case BHY2_SENSOR_ID_EXCAMERA:
