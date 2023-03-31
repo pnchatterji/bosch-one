@@ -7,18 +7,20 @@ Follow [nRF Connect SDK Getting Started](https://developer.nordicsemi.com/nRF_Co
 for details on how to setup nRF Connect SDK based projects.
 
 ### Add *Bosch-One* to the *nrf Connect* Zephyr manifest
-Subsequently, copy the file *bosch-one.yaml* available in the bosch-one repository to *ncs/vx.y.z/zephyr/submanifests*
-and add *bosch-one* to the allowlist of zephyr project imports in *ncs/vx.y.z/nrf/west.yml*. The entry should be in 
-alphabetical order with respect to the other names in the allowlist. 
+Once nrf Connect SDK is installed, add the following entry to *ncs/vx.y.z/nrf/west.yml* 
+at the end of the third-party projects section.
 ```
 manifest:
   ...
   projects:
-    - name: zephyr
-      import:
-        name-allowlist:
-          ...
-          - bosch-one
+    ...
+    # Other third-party repositories.
+    ...
+    - name: bosch-one
+      path: bosch-one
+      revision: main
+      url: https://github.com/BoschSensortec/bosch-one
+      import: bosch-one.yaml
 ```
 ### Update the *nrf Connect* Zephyr module repository 
 
