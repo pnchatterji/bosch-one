@@ -8,5 +8,5 @@ manifest:
       url: https://github.com/pnchatterji/bosch-one
     - name: bhy2
       path: bosch-one/sensor-api/bhy2
-      revision: main
+      revision: v1.5.0
       url: https://github.com/BoschSensortec/BHY2-Sensor-API

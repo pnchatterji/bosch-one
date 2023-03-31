@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Nicla Debug (PyOCD)",
+            "cwd": "${workspaceFolder}",
+            "executable": "./build/zephyr/zephyr.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "pyocd",
+            "targetId": "nrf52",
+            "device": "nrf52832",
+            "svdFile": "${config:nrf-connect.topdir}/modules/hal/nordic/nrfx/mdk/nrf52.svd",
+        }
+    ]
+}

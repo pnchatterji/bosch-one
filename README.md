@@ -22,23 +22,26 @@ manifest:
 ```
 ### Update the *nrf Connect* Zephyr module repository 
 
-After adding bosch-one to the west manifest as above, open a cmd console using the [nrf Toolchain Manager](https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/getting_started/assistant.html#id13)
-
-*cd* to *ncs/vx.y.z* and enter the following command:
+After adding bosch-one to the west manifest as above, open a Windows cmd console 
+ and enter the following commands:
 
 ```
+cd \ncs\vx.y.z
+zephyr\zephyr-env.cmd
 west update
 ```
 If the update is successful, there should now be subdirectory named *bosch-one* under *ncs/vx.y.z/* containing the Bosch Sensortec Zephyr Drivers, Sensor API, Libraries, Documents and Samples.
 
-Note: it is necessary to use the cmd console created by the *nrf Toolchain Manager*. If you open an ordinary Windows cmd console, the necessary environment variables are not set. If for some reason you do not wish to use *nrf Toolchain Manager*, you will need to set the environment variables yourself in the following manner:
-*cd* to *ncs/vx.y.z* and enter the following command:
-```
-zephyr\zephyr-env.cmd
-```
+**Notes:**
+1. *vx.y.z* in the above description refers to version of *nrf Connect SDK* currently active in the *nrfConnect plugin*
+in *VS Code*. E.g. *V2.3.0* Check the currently active SDK version in the *Welcome Page* of *nrf Connect Plugin* if you are not sure.
+2. *zephyr-env.cmd* is a Zephyr script for setting the necessary environment variables for *west update* to function properly.
+3. The above procedure has to be repeated every time a new version of *nrf Connect SDK* is installed
+4. It is also necessary to update the settings of the *nrf Connect Plugin* in *VS Code* after updating the version of the 
+*nrf Connect SDK*. This can be done in the *Quick Setup* in the *Welcome Page* of  *nrf Connect Plugin*.
 
 ### Use *Bosch-One* to create a Zephyr application for Bosch Sensortec devices
-Refer the sample readme files in bosch-one/samples to build a Zephyr application for a supported Bosch Sensortec device. Detailed documentation is available under bosch-one/docs
+Refer the sample readme files in *bosch-one/samples* to build a Zephyr application for a supported Bosch Sensortec device. Detailed documentation is available under *bosch-one/docs*
 
 In summary, the general procedure is as follows:
 - Launch VS Code
