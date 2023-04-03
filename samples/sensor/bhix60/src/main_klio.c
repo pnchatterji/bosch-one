@@ -10,6 +10,10 @@
 
 /*Define application specific firmware to be uploaded*/
 #include <bhix60_klio.h>
+# if defined(CONFIG_BHIX60_UPLOAD_FW_TO_FLASH) || !defined(CONFIG_BHIX60_UPLOAD_FW_TO_RAM)
+#    error 	"CONFIG_BHIX60_UPLOAD_FW_TO_RAM Should be set for this firmware"
+# endif 
+
 #include <firmware/bhi260ap_klio/BHI260AP_KLIO.fw.h>
 int bhix60_get_firmware(const struct device *dev, unsigned char **fw,unsigned int *fw_sz)
 {

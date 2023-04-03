@@ -1,0 +1,11 @@
+Each version (git label) of bosch-one is compatible with a particular nrf Connect
+version. It should be ensured while adding bosch-one to the nrf Connect west.yaml
+manifest that the appropriate version of bosch-one is installed. Incompatibilities
+in minor version numbers may not be significant. However, incompatible major version
+numbers may cause build or runtime errors.
+
++============+=============+
+| bosch-one  | nrf Connect |
++============+=============+
+|   V1.0     |    V2.3.0   |
++------------+-------------+

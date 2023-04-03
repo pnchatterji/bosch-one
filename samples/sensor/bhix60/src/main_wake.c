@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  * This BHIx60 driver sample demonstrates the use of Wakeup type Virtual
  * Sensors in conjunction with the Zephyr Power Management Module.
- * It uses the motion and starionary sensors to detect motion and
+ * It uses the motion and stationary sensors to detect motion and
  * no motion. If board is physically stationary for longer than 10 seconds
  * the host CPU goes into Soft Off state. It resumes when board is moved again.
  * Accelerometer reading is dumped in active state to simulate normal
@@ -28,6 +28,9 @@
 #include <hal/nrf_gpio.h>
 /*Define application specific firmware to be uploaded*/
 #include <bhix60.h>
+# if defined(CONFIG_BHIX60_UPLOAD_FW_TO_FLASH) || !defined(CONFIG_BHIX60_UPLOAD_FW_TO_RAM)
+#    error 	"CONFIG_BHIX60_UPLOAD_FW_TO_RAM Should be set for this firmware"
+# endif 
 #include <firmware/bhi260ap/BHI260AP.fw.h> 
 int bhix60_get_firmware(const struct device *dev, unsigned char **fw,unsigned int *fw_sz)
 {

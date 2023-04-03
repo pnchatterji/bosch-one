@@ -22,6 +22,10 @@ manifest:
       url: https://github.com/BoschSensortec/bosch-one
       import: bosch-one.yaml
 ```
+
+NOTE: *revision:main* applies only for the currently supported version of nrf Connect. Refer compatibility-matrix.txt
+for installing bosch-one for older versions of nrf Connect.
+
 ### Update the *nrf Connect* Zephyr module repository 
 
 After adding bosch-one to the west manifest as above, open a Windows cmd console 
