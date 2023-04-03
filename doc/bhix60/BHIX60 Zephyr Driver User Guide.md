@@ -973,8 +973,10 @@ In order to flash and debug the Nicla Sense ME board from VSCODE, the following 
 				"servertype": "pyocd",
 				"targetId": "nrf52",
 				"device": "nrf52832",
-				"svdFile": "${config:nrf-connect.topdir}/modules/hal/nordic/nrfx/mdk/nrf52.svd",
+				"svdFile": "${env:UserProfile}/ncs/v2.3.0/modules/hal/nordic/nrfx/mdk/nrf52.svd",
 			}
 		]
 	}
 ```
+
+NOTE: The build path in "executable" and the nrf Connect version number in "svdFile" should be updated to reflect actual situation.
