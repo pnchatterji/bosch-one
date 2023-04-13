@@ -10,7 +10,7 @@
 #include <zephyr/init.h>
 
 /*configuation flag to select 1.8V or 2.8 V for shuttle board VDD*/
-#ifdef CONFIG_BST_AB3_NRF52840_SELECT_VDD_2_8
+#ifdef CONFIG_BST_SHUTTLE_SELECT_VDD_2_8
 	#define PWR_CTRL_VDD_SEL_1_8 0
 #else
 	#define PWR_CTRL_VDD_SEL_1_8 1
@@ -37,8 +37,7 @@ static int board_bst_ab3_nrf52840_init(const struct device *dev)
 	return ret; 
 }
 
-//#ifdef CONFIG_BST_AB3_USB_AUTO_START
-#if defined(CONFIG_CONFIG_USB_DEVICE_STACK) || defined(CONFIG_BST_AB3_USB_AUTO_START) || defined(CONFIG_USB_CDC_ACM)
+#if defined(CONFIG_CONFIG_USB_DEVICE_STACK) && defined(CONFIG_BST_USB_AUTO_START)
 static int usb_cdc_init(const struct device *dev)
 {
 	int err = usb_enable(NULL);
@@ -47,7 +46,7 @@ static int usb_cdc_init(const struct device *dev)
 }
 
 SYS_INIT(usb_cdc_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
-#endif //CONFIG_BST_AB3_USB_AUTO_START
+#endif /*CONFIG_BST_USB_AUTO_START*/
 
 SYS_INIT(board_bst_ab3_nrf52840_init, PRE_KERNEL_2, //PRE_KERNEL_1,
 	 CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);

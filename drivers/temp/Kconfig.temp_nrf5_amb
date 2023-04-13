@@ -1,0 +1,10 @@
+# Copyright (c) 2023 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+config TEMP_NRF5_AMB
+	bool "Modified NRF5 Temp Driver"
+	default y
+	depends on DT_HAS_NORDIC_NRF_TEMP_AMB_ENABLED
+	help
+	  Enable Modified NRF5 Temperature Driver.
+

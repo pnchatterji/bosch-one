@@ -55,6 +55,7 @@
 	led_rgb: leds {
 		compatible = "gpio-leds";
 		label = "leds";
+		status = "okay";
 		led_blue: led0: led_0 {
 			gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
 			label = "Blue LED";
@@ -125,15 +126,15 @@
 	/*settings for Battery measurement analog input and voltage divider*/
 	bat_level: vbatt {
             compatible = "bat-level-adc"; //"voltage-divider";
-			label = "vbatt";
+			//label = "vbatt";
             io-channels = <&adc 7>;						/*BATT MEAS is connected to AIN7 (P0.31)*/
             output-ohms = <180000>;
             full-ohms = <(300000 + 180000)>;			/*R1=300kohm R2=180kohm in AB3.0*/
             power-gpios = <&gpio0 2 GPIO_ACTIVE_LOW>; 	/*VBAT-MON-EN is P0.02, Active Low*/
 
 			bat-max-mv = <4200>;						/*max voltage (charging voltage) of battery in mv*/
-		    bat-min-mv = <3000>; 						/* min voltage (cutoff voltage) of battery in mv*/
-			
+		    bat-min-mv = <3000>; 						/*min voltage (cutoff voltage) of battery in mv*/
+			work-interval-ms = <2000>;					/*how often the battery level is sampled in ms*/
 		  	/*delta mv corresponding to two successive entries in below mv-soc look-up-table. It should
 			be computed like this:
 			(uint32_t)(((bat_max_mv - bat_min_mv) / (sizeof(bat_mv_soc_lut)))+0.5);*/
@@ -227,12 +228,12 @@
 };
 
 &gpio0 {
-	label = "GPIO_0";
+	//label = "GPIO_0";
 	status = "okay";
 };
 
 &gpio1 {
-	label = "GPIO_1";
+	//label = "GPIO_1";
 	status = "okay";
 };
 
@@ -244,7 +245,7 @@
 &i2c0 {
 	compatible = "nordic,nrf-twi";
 	status = "okay";
-	label = "I2C_0";
+	//label = "I2C_0";
 	//sda-pin = <29>;
 	//scl-pin = <26>;
 	pinctrl-0 = <&i2c0_default>;
@@ -255,7 +256,8 @@
 		/* For Temperature I2C of Application Board 3.0. 
 		It has the I2C slave device address of 0x48 */
 		reg = <0x48>;
-		label = "TMP112";
+		status = "okay";
+		//label = "TMP112";
 	};
 };
 
@@ -267,7 +269,7 @@ with 32Mhz operation. This is also possible only in SPIM mode
 &spi3 {
 	compatible = "nordic,nrf-spim";
 	status = "okay";
-	label = "SPI_3";
+	//label = "SPI_3";
 	//sck-pin  = <19>;
 	//mosi-pin = <20>;
 	//miso-pin = <21>;
@@ -281,10 +283,10 @@ with 32Mhz operation. This is also possible only in SPIM mode
 		compatible = "winbond,spim-nand";
 		spi-max-frequency = <32000000>; /*32 Mhz (previously 8)*/
 		reg = <0>;
-		label = "W25NANDSPI";
+		//label = "W25NANDSPI";
 		hold-gpios = <&gpio0 23 GPIO_ACTIVE_HIGH>;
 		wp-gpios   = <&gpio0 22 GPIO_ACTIVE_HIGH>;
-
+		status = "okay";
 		partitions {
 			compatible = "fixed-partitions";
 			#address-cells = <1>;
@@ -356,6 +358,6 @@ zephyr_udc0: &usbd {
 	
 	uart_dev: cdc_acm_uart {
 		compatible = "zephyr,cdc-acm-uart";
-		label = "CDC_ACM_0";
+		//label = "CDC_ACM_0";
 	};
 };

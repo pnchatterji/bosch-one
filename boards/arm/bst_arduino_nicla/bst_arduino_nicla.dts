@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2023 Bosch Sensortec GmbH
  * DTS for Arduino Nicla Sense ME board pre-configured 
@@ -50,6 +51,112 @@
 						status = "okay";
 		};
 	};
+    /*Map AB3 Shuttle Board Control Pins to equivalent NICLA pins
+    So that COINES GPIO enums do not need to be changed*/
+	shuttle_board {
+		compatible = "gpio-keys";
+		shuttle_vdd_sel: shuttle_vdd_sel {
+			gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;    //P0.06 is an unused nrf52382 GPIO pin in NICLA & ANNA-B112
+			label = "Shuttle VDD Select";           //dummy in NICLA
+		};
+		shuttle_vdd_en: shuttle_vdd_en {            
+			gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;    //dummy in NICLA
+			label = "Shuttle VDD Enable";
+		};
+		shuttle_vddio_en: shuttle_vddio_en {        
+			gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;    //dummy in NICLA
+			label = "Shuttle VDDIO Enable";
+		};
+		
+		//BHY260 M3SCL is connected to NRF pin 23. 
+		//On SB, this corresponds to shuttle pin GPIO0 (Shuttle P1.4)
+		//On NICLA, this is SCL of I2C1 (shuttle_i2c)
+		shuttle_gpio0: shuttle_pin_1_4: shuttle_gpio0 {
+			gpios = <&gpio0 23 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle GPIO0";
+		};
+		
+		//BHY260 M3SDA  is connected to NRF pin 22. 
+		//On SB, this corresponds to shuttle pin GPIO1 (Shuttle P1.5)
+		//On NICLA, this is SDA of I2C1 (shuttle_i2c)
+		shuttle_gpio1: shuttle_pin_1_5: shuttle_gpio1 {
+			gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle GPIO1";
+		};
+		
+		//BHY260 HIRQ is connected to NRF pin 14 (GPIO13 in NICLA schematics). 
+		//On SB, this corresponds to shuttle pin GPIO2/INT1 (Shuttle P1.6)
+		shuttle_gpio2_int1: shuttle_pin_1_6: shuttle_gpio2_int1 {
+			gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>;	
+			label = "Shuttle GPIO2/INT1";
+		};
+
+		//BHY260 MCSB4 is connected to NRF pin 29 (CS1 in NICLA schematics). 
+		//On SB, this corresponds to shuttle pin GPIO3/INT2 (Shuttle P1.7)		
+		shuttle_gpio3_int2: shuttle_pin_1_7: shuttle_gpio3_int2 {
+			gpios = <&gpio0 29 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle GPIO3/INT2";
+		};
+		//Shuttle CS (BHI260 HCSB on BHI260 SB) --> CS0 in NICLA 
+		shuttle_cs: shuttle_pin_2_1: shuttle_cs {
+			gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle Chip Select";
+		};
+		//Shuttle SCK (BHI260 HSCx on BHI260 SB) --> SCLK0 in Nicla
+		shuttle_sck_scl: shuttle_pin_2_2: shuttle_sck_scl {
+			gpios = <&gpio0 3 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle SCK/SCL";
+		};
+		//Shuttle SDO (BHI260 HSDO on BHI260 SB) --> CIPO0 in Nicla
+		shuttle_sdo: shuttle_pin_2_3: shuttle_sdo {
+			gpios = <&gpio0 5 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle SDO";
+		};
+		//Shuttle SDI/SDA (BHI260 HSDX on BHI260 SB) --> COPI0 in Nicla
+		shuttle_sdi_sda: shuttle_pin_2_4: shuttle_sdi_sda {
+			gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle SDI/SDA";
+		};
+		//Shuttle GPIO4_OSCB (NC  on BHI260 SB) -->  dummy in Nicla
+		shuttle_gpio4_ocsb: shuttle_pin_2_5: shuttle_gpio4_ocsb {
+			gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;			//dummy in NICLA
+			label = "Shuttle GPIO4/OCSB";
+		};
+		//Shuttle GPIO5/ASCX (BHI260 RESETN on BHI260 SB) --> SWO/GPIO16/BHI260_RESET in Nicla
+		shuttle_gpio5_ascx: shuttle_pin_2_6: shuttle_gpio5_ascx {
+			gpios = <&gpio0 18 GPIO_ACTIVE_HIGH>;
+			label = "Shuttle GPIO5/ASCx";
+		};
+		//Shuttle GPIO6/OSDO (NC on BHI260 SB) --> dummy in Nicla
+		shuttle_gpio6_osdo: shuttle_pin_2_7: shuttle_gpio6_osdo {
+			gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;			//dummy in NICLA
+			label = "Shuttle GPIO6/OSDO";
+		};
+		//Shuttle GPIO7/ASDX (NC on BHI260 SB) --> dummy in Nicla
+		shuttle_gpio7_asdx: shuttle_pin_2_8: shuttle_gpio7_asdx {
+			gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;			//dummy in NICLA
+			label = "Shuttle GPIO7/ASDx";
+		};
+		//Shuttle prom_rw (PROM_RW on BHI260 SB) --> dummy in Nicla
+		shuttle_prom_rw: shuttle_pin_2_9: shuttle_prom_rw {
+			gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;			//dummy in NICLA
+			label = "Shuttle PROM RW";
+		};
+		//AB3 Buttons --> both mapped to Reset button in Nicla
+		button_t1: button0: button_0 {
+			gpios = <&gpio0 21 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Pushbutton T1";
+		};
+		button_t2: button1: button_1 {
+			gpios = <&gpio0 21 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
+			label = "Pushbutton T2";
+		};
+		//AB3 LEDs --> all mapped to dummy in NICLA, as NICLA LED uses I2C
+		led_red: led_green: led_blue: dummy_gpio: dummy_gpio {
+			gpios = <&gpio0 6 GPIO_ACTIVE_HIGH>;    //P0.06 is an unused nrf52382 GPIO pin in NICLA & ANNA-B112
+			label = "Dummy GPIO";           		//dummy in NICLA
+		};
+	};
 	
 	/*littlefs partition on external spi flash mx25r1635f 16MB
 	NOTE: the NICLA Reference manual incorrectly refers to this as MX231835 2MB
@@ -94,6 +201,15 @@ uart_dev: &uart0 {
 	pinctrl-names = "default", "sleep";
 };
 
+/*Use nRF TEMP module as board temperature device
+A modified driver that approximates ambient temperature
+from die temperature is used in this case*/
+temp_dev: &temp {
+	//label = "TEMP_0";
+	compatible = "nordic,nrf-temp-amb";
+	status = "okay";
+};
+
 /* I2C0 in datasheet */
 /*I2C0 Pins are connected to LED+Battery Charger in NICLA schematic
    no correspondence with AB3 pins*/
@@ -106,13 +222,14 @@ uart_dev: &uart0 {
 	led_rgb: fl3194@53 {
 		compatible = "issi,is31fl3194";
 		reg = <0x53>;
-		label = "FL3194";
+		status = "okay";
+		//label = "FL3194";
 	};
 	bat_level: bq25120@6a {
 		compatible = "ti,bq25120";
 		status = "okay";
 		reg = <0x6a>;
-		label = "BQ25120";
+		//label = "BQ25120";
 		cd-gpios = <&gpio0 25 GPIO_ACTIVE_LOW>;
 		/*settings for LP4030 3.7 V, 450mAH battery*/
 		bat_reg_mv = <3700>;	//regulation voltage of battery in mv (3.6-4.65V)
@@ -127,7 +244,11 @@ uart_dev: &uart0 {
 };
 
 /* I2C1 in datasheet */
-&i2c1 {
+/*I2C1 pins are connected to BHI260 I2C M3 SCL/SDA and to I2C pins on external J2 connector
+This can be designated either COINES shuttle_aux_i2c or shuttle_i2c, depending on project requirement
+Note that both spi1 and i2c1 cannot be activated simultaneously. 
+Enable following node only after disabling spi1 node*/
+shuttle_aux_i2c: shuttle_i2c: &i2c1 {
 	compatible = "nordic,nrf-twim";
 	/* Cannot be used together with spi1. */
 	status = "okay";
@@ -137,7 +258,11 @@ uart_dev: &uart0 {
 };
 
 /* SPI1 in datasheet */
-&spi1 {
+/*SPI1 pins are connected to BHI260 M2 SPI pins and to SPI pins on external J2 connector
+This can be designated COINES shuttle_aux_spi, depending on project requirement
+Note that Both spi1 and i2c1 cannot be activated simultaneously. 
+Enable following node only after disabling i2c1 node*/
+shuttle_aux_spi: &spi1 {
 	compatible = "nordic,nrf-spim";
 	/* Cannot be used together with i2c1. */
 	/* status = "okay"; */
@@ -161,11 +286,11 @@ uart_dev: &uart0 {
 	//0: CS of BHI260 1:CS of Flash
 	cs-gpios = <&gpio0 31 GPIO_ACTIVE_HIGH>,<&gpio0 26 GPIO_ACTIVE_LOW>;
 	
-	 bhix60_dev: bhix60@0 {
+	 shuttle_spi: bhix60_dev: bhix60@0 {
 		compatible = "bosch,bhix60";
 		reg = <0>;
 		spi-max-frequency = <1000000>;//<20000000>;
-		label = "bhix60";
+		//label = "bhix60";
 		status = "okay";
 		reset-gpios = <&gpio0 18 GPIO_ACTIVE_LOW>;	//reset pin of BHI260
 		hirq-gpios = <&gpio0 14 GPIO_ACTIVE_HIGH>;	//Interrupt-OUT pin of BHI260 
@@ -177,7 +302,7 @@ uart_dev: &uart0 {
 		compatible = "jedec,spi-nor";
 		reg = <1>;
 		spi-max-frequency = <80000000>;
-		label = "MX25R163F";
+		//label = "MX25R163F";
 		jedec-id = [c2 28 15];
 		size = <DT_SIZE_M(2*8)>;	//mx25r1635f size is 16Mbits (2 MBytes). Flash Size parameter is given in Mbits 
 		has-dpd;

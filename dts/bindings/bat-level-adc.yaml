@@ -17,6 +17,10 @@ properties:
       type: int
       required: true
       description: min voltage (cutoff voltage) of battery in mv
+    work-interval-ms:
+      type: int
+      required: true
+      description: how often the battery level is sampled in ms
     lut-delta:
       type: int
       required: true

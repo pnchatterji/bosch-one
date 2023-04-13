@@ -1,0 +1,14 @@
+# Copyright (c) 2023 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+config BAT_LEVEL_ADC
+	bool "Voltage Divider and ADC Based Battery Level Detector"
+	default y
+	depends on DT_HAS_BAT_LEVEL_ADC_ENABLED
+	select ADC
+	select ADC_ASYNC
+	select ADC_NRFX_SAADC
+	select BATTERY_SENSE
+	help
+	  Enable driver for  Battery Level Detector via ADC and voltage divider.
+

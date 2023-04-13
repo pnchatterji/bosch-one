@@ -1,0 +1,43 @@
+#
+# Copyright (c) 2022 Bosch Sensortec GmbH
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+
+config FILE_SYSTEM_FLOGFS
+	bool "FLogFS support"
+	depends on FILE_SYSTEM
+	help
+	  Enables FLogFS file system support.
+
+if FILE_SYSTEM_FLOGFS
+menu "FLogFS File System sample"
+
+config FS_FLOGFS_NUM_FILES
+	int "Maximum number of opened files"
+	default 4
+	help
+	  This is a global maximum across all mounted flogfs filesystems.
+
+config FS_FLOGFS_NUM_ITRS
+	int "Maximum number of opened file iterators"
+	default 1
+	help
+	  This is a global maximum across all mounted flogfs filesystems.
+
+config FS_FLOGFS_COARSE_LOCKING
+	bool "FLogFS Coarse Locking"
+	default false
+	help
+	  Enables FLogFS file system locking at a coarse (filesystem) level.
+
+config FS_FLOGFS_FINE_LOCKING
+	bool "FLogFS Fine Locking"
+	default true
+	help
+	  Enables FLogFS file system locking at a fine (file) level.
+	  
+endmenu
+
+endif # FILE_SYSTEM_FLOGFS

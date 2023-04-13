@@ -47,7 +47,7 @@
 		pinctrl-0 = <&i2c1_primary_default>;
 		pinctrl-1 = <&i2c1_primary_sleep>;
 		pinctrl-names = "default", "sleep";
-		label = "I2C_1";
+		//label = "I2C_1";
 	};
 #elif defined(I2C1_AUX)
 	/*i2c1 is used for auxilliary shuttle i2c port*/
@@ -58,7 +58,7 @@
 		//scl-pin = <14>;  /*GPIO 0 acts as aux i2c SCL*/
 		pinctrl-0 = <&i2c1_aux_default>;
 		pinctrl-1 = <&i2c1_aux_sleep>;
-		label = "I2C_1";
+		//label = "I2C_1";
 	};
 #elif defined(I2C1_DISABLED)
 	/*i2c1 is disabled*/
@@ -88,7 +88,7 @@
 			compatible = "bosch,bmxx-spi";
 			reg = <0>;
 			spi-max-frequency = <8000000>;
-			label = "bmxx_spi";
+			//label = "bmxx_spi";
 			status = "okay";
 		};
 
@@ -97,7 +97,7 @@
 	/*spi1 is disabled*/
 	&spi1 {
 		status = "disabled";
-		label = "SPI_1";
+		//label = "SPI_1";
 	};
 #endif
 
@@ -106,7 +106,7 @@
 	&spi2 {
 		compatible = "nordic,nrf-spim";
 		status = "okay";
-		label = "SPI_2";
+		//label = "SPI_2";
 		//sck-pin = <16>;
 		//mosi-pin = <6>;
 		//miso-pin = <15>;
@@ -122,7 +122,7 @@
 			compatible = "bosch,bmxx-spi";
 			reg = <0>;
 			spi-max-frequency = <8000000>;
-			label = "bmxx_spi";
+			//label = "bmxx_spi";
 			status = "okay";
 		};
 	};
@@ -131,7 +131,7 @@
 	&spi2 {
 		compatible = "nordic,nrf-spim";
 		status = "okay";
-		label = "SPI_2";
+		//label = "SPI_2";
 		//sck-pin = <34>;  /*P1.02*/
 		//mosi-pin = <42>; /*P1.10*/
 		//miso-pin = <43>; /*P1.11*/
@@ -148,7 +148,7 @@
 			compatible = "bosch,bmxx-spi";
 			reg = <0>;
 			spi-max-frequency = <8000000>;
-			label = "bmxx_spi";
+			//label = "bmxx_spi";
 			status = "okay";
 		};
 	};

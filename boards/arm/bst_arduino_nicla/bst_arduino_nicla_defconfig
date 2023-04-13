@@ -14,12 +14,21 @@ CONFIG_GPIO=y
 # enable uart driver
 CONFIG_SERIAL=y
 
+#Nicla accesses USB via a bridge. Switch off USB related
+#modules just to be sure
+CONFIG_USB_DEVICE_STACK=n
+CONFIG_USB_CDC_ACM=n
+CONFIG_UART_ASYNC_API=n
+CONFIG_BST_USB_AUTO_START=n
+
 # enable console
 CONFIG_CONSOLE=y
 CONFIG_UART_CONSOLE=y
-
+#Use UART for logging
+CONFIG_LOG_BACKEND_UART=y
 # additional board options
-CONFIG_GPIO_AS_PINRESET=y
+# Disable reset pin, to use PB1 as normal button
+CONFIG_GPIO_AS_PINRESET=n
 
 # enable pin controller
 CONFIG_PINCTRL=y

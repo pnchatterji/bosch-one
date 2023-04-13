@@ -1,0 +1,12 @@
+# Copyright (c) 2023 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+config FL3194
+	bool "FL3194 LED driver"
+	default y
+	depends on DT_HAS_ISSI_IS31FL3194_ENABLED
+	select I2C
+	select LED
+	help
+	  Enable LED driver for FL3194.
+

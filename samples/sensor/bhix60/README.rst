@@ -135,6 +135,7 @@ Most of the samples use BHI260 firmware that are designed for uploading to BHI26
 , so the following setting should be made in *prj.conf*:
 
 	CONFIG_BHIX60_UPLOAD_FW_TO_RAM=y
+	
 	CONFIG_BHIX60_UPLOAD_FW_TO_FLASH=n
 
 However, if using the Nicla board, the AUX and BSEC samples use a Nicla-specific firmware
@@ -142,6 +143,7 @@ that is designed for uploading to BHI260 Flash. So, *only* if using the Nicla bo
 that too *only* for AUX and BSEC samples, following setting should be done in *prj.conf*
 
 	CONFIG_BHIX60_UPLOAD_FW_TO_RAM=n
+	
 	CONFIG_BHIX60_UPLOAD_FW_TO_FLASH=y
 
 This is verified by #ifdef pre-compiler checks in the code, to prevent inadvertent errors.

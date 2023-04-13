@@ -1,0 +1,82 @@
+#
+# Copyright (c) 2022 Bosch Sensortec GmbH
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+menu "COINES"
+config COINES
+	bool "Enable COINES"
+	select REBOOT
+	select PIPES
+	help
+	  Enable COINES on Zephyr library
+
+config BT_NUS_THREAD_STACK_SIZE
+	int "Thread stack size"
+	default 1024
+	help
+	  Stack size used in each of the two threads
+
+config BT_NUS_UART_BUFFER_SIZE
+	int "UART payload buffer element size"
+	default 40
+	help
+	  Size of the payload buffer in each RX and TX FIFO element
+
+config BT_NUS_SECURITY_ENABLED
+	bool "Enable security"
+	default n
+	select BT_SMP
+	help
+	  "Enable BLE security for the UART service"
+
+config BT_NUS_UART_DEV
+	string "UART device name"
+	default "UART_0"
+	help
+	  Name of the used UART device. The sample uses uart0 by default.
+	  The UART device should not be used as logger backend.
+
+config BT_NUS_UART_RX_WAIT_TIME
+	int "Timeout for UART RX complete event"
+	default 50
+	help
+	  Wait for RX complete event time in milliseconds
+
+
+config BT_NUS_UART_ECHO
+	bool "Enable NUS UART Echo"
+	default y
+	help
+	  Enable Echo of data received from UART terminal. Useful for testing.
+
+config NUS_READ_BUF_SIZE
+	int "NUS read buffer size"
+	default 100
+	help
+	  Size of ring buffer to allocate for NUS read. If too small, can lead 
+	  to data loss if not emptied fast enough by application reads operations
+config HTS_PROC_RATE_MS
+	int "HTS processing rate (MS)"
+	default 1000
+	help
+	  Rate at which HTS service is processed (in milliseconds). In Bosch AB3.0
+	  this controls how often notifications for board temperature and Battery 
+	  Level are sent via BLE services
+
+config ADC_WORK_INTERVAL_MS
+	int "ADC sampling rate (ms)"
+	default 2000
+	help
+	  MS interval between ADC samplings. In Bosch Application Board 3.0
+	  this primarily controls how often the battery level is sampled
+
+config TEMP_DEV_CHANNEL_DIE
+	bool "Temperature device measures die temp"
+	default n
+	help
+	  Board temperature sensor usually measures ambient temperature (eg for AB3) but it can
+	  be die temperature as in case of Nicla
+endmenu
+

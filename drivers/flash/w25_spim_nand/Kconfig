@@ -1,0 +1,15 @@
+#
+# Copyright (c) 2022 Bosch Sensortec GmbH
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+config W25_SPIM_NAND
+	bool "W25XX SPIM NAND Driver"
+	depends on DT_HAS_WINBOND_SPIM_NAND_ENABLED
+	default y
+	help
+		W25XX driver should be enabled on AB3 to use the external flash 
+		chip W25M02GW or other chips in this family
+
+

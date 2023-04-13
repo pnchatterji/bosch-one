@@ -1,1 +1,5 @@
+rsource "bat/Kconfig"
+rsource "flash/Kconfig"
+rsource "led/Kconfig"
 rsource "sensor/Kconfig"
+rsource "temp/Kconfig"
