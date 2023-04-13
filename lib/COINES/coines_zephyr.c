@@ -619,12 +619,12 @@ static int get_i2c_device(enum coines_i2c_bus bus, struct device **i2c_dev_p)
     switch(bus)
     {
          case COINES_I2C_BUS_0:
-#if  DT_NODE_EXISTS(DT_NODELABEL(shuttle_i2c))
+#if  DT_NODE_HAS_STATUS(DT_NODELABEL(shuttle_i2c),okay)
             i2c_dev = DEVICE_DT_GET(DT_NODELABEL(shuttle_i2c));
 #endif
             break;
         case COINES_I2C_BUS_1:
-#if  DT_NODE_EXISTS(DT_NODELABEL(shuttle_aux_i2c))
+#if  DT_NODE_HAS_STATUS(DT_NODELABEL(shuttle_aux_i2c),okay)
             i2c_dev = DEVICE_DT_GET(DT_NODELABEL(shuttle_aux_i2c));
 #endif
             break;
@@ -937,10 +937,10 @@ Refer to the comments in the DTS file and the COINES for Zephur User Manuel for 
 */
 
 static struct spi_dt_spec spi_specs[COINES_SPI_BUS_MAX] = {
-#if DT_NODE_EXISTS(DT_NODELABEL(shuttle_spi))
+#if DT_NODE_HAS_STATUS(DT_NODELABEL(shuttle_spi),okay)
     [COINES_SPI_BUS_0] = SPI_DT_SPEC_GET(DT_NODELABEL(shuttle_spi),SPI_OPERATION_MODE3,SPI_DELAY),
 #endif
-#if DT_NODE_EXISTS(DT_NODELABEL(shuttle_aux_spi))
+#if DT_NODE_HAS_STATUS(DT_NODELABEL(shuttle_aux_spi),okay)
      [COINES_SPI_BUS_1] = SPI_DT_SPEC_GET(DT_NODELABEL(shuttle_aux_spi),SPI_OPERATION_MODE3,SPI_DELAY),
 #endif
 };

@@ -1,4 +1,7 @@
 sample:
   name: Sample COINES App
 tests:
-  sample.coines.coines_app:
+  sample.coines.coinesapp:
+    harness: sensor
+    tags: samples coines
+

@@ -248,7 +248,7 @@ temp_dev: &temp {
 This can be designated either COINES shuttle_aux_i2c or shuttle_i2c, depending on project requirement
 Note that both spi1 and i2c1 cannot be activated simultaneously. 
 Enable following node only after disabling spi1 node*/
-shuttle_aux_i2c: shuttle_i2c: &i2c1 {
+shuttle_i2c: &i2c1 {
 	compatible = "nordic,nrf-twim";
 	/* Cannot be used together with spi1. */
 	status = "okay";
