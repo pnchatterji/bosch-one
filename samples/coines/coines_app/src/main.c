@@ -27,9 +27,6 @@ int test_gpio_led(void)
 	uint32_t oldms = coines_get_millis();
 	//coines_open_comm_intf() is not called in this test, so leds and buttons have to be configured
 	//explicitely. This also tests the pin config API.
-	ret |= coines_set_pin_config(COINES_APP30_LED_R,COINES_PIN_DIRECTION_OUT,COINES_PIN_VALUE_LOW);
- 	ret |= coines_set_pin_config(COINES_APP30_LED_G,COINES_PIN_DIRECTION_OUT,COINES_PIN_VALUE_LOW);
-	ret |= coines_set_pin_config(COINES_APP30_LED_B,COINES_PIN_DIRECTION_OUT,COINES_PIN_VALUE_LOW); 
 	ret |= coines_set_pin_config(COINES_APP30_BUTTON_1,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH); 	  
 	ret |= coines_set_pin_config(COINES_APP30_BUTTON_2,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH); 
 	if(ret!=0)
@@ -38,7 +35,9 @@ int test_gpio_led(void)
 		return -1;
 	}
 	printf("Press TB1 and TB2 to toggle Red and Blue LEDs (6 times)\n");
-	coines_set_led(COINES_LED_BLUE,COINES_LED_STATE_ON);
+	coines_set_led(COINES_LED_RED,COINES_LED_STATE_OFF);
+	coines_set_led(COINES_LED_BLUE,COINES_LED_STATE_OFF);
+	coines_set_led(COINES_LED_GREEN,COINES_LED_STATE_OFF);
     while (cnt<5)
     {
 		if(coines_get_pin_config(COINES_APP30_BUTTON_1,&pin_dir,&pin_val)!=0 || pin_dir != COINES_PIN_DIRECTION_IN)
@@ -49,9 +48,7 @@ int test_gpio_led(void)
 		if(pin_val && ! pb1_pressed)
 		{
 			pb1_tog = !pb1_tog;
-			coines_set_pin_config(COINES_APP30_LED_R,
-				COINES_PIN_DIRECTION_OUT,
-				(pb1_tog?COINES_PIN_VALUE_HIGH:COINES_PIN_VALUE_LOW));
+			coines_set_led(COINES_LED_RED,(pb1_tog?COINES_LED_STATE_ON:COINES_LED_STATE_ON));
 			cnt++;
 		}
 		pb1_pressed = pin_val;
@@ -63,10 +60,8 @@ int test_gpio_led(void)
 		if(pin_val && ! pb2_pressed)
 		{
 			pb2_tog = ! pb2_tog;
-			coines_set_pin_config(COINES_APP30_LED_B,
-				COINES_PIN_DIRECTION_OUT,
-				(pb2_tog?COINES_PIN_VALUE_HIGH:COINES_PIN_VALUE_LOW));
-				cnt++;
+			coines_set_led(COINES_LED_BLUE,(pb2_tog?COINES_LED_STATE_ON:COINES_LED_STATE_ON));
+			cnt++;
 		}
 		pb2_pressed = pin_val;
 		if(coines_get_millis() > oldms+2000)
@@ -141,6 +136,17 @@ int test_spi(void)
 	}
 	puts("SPI test over");
     return 0;	
+}
+/*dummy tests to satisfy build in case of unsupported board*/
+int test_i2c(void)
+{
+	puts("test_i2c() is not available for this board");
+	return 0;
+}
+int test_aux_spi(void)
+{
+	puts("test_aux_spi() is not available for this board");
+	return 0;
 }
 #else /*CONFIG_BOARD_BST_ARDUINO_NICLA: below tests not valid for Nicla*/
 /*
@@ -535,14 +541,21 @@ int test_mixed_gpio_int()
 int timer_cb_cnt=0;
 void tim_cb(void)
 {
-	printf("Timer callback: %d\n",timer_cb_cnt++);
+	timer_cb_cnt++;
 }
 int test_timer_interrupt()
 {
+	int old_timer_cb_cnt=0;
+	timer_cb_cnt=0;
 	coines_timer_config(COINES_TIMER_INSTANCE_1,tim_cb);
 	puts("Starting Timer test");
 	coines_timer_start(COINES_TIMER_INSTANCE_1,3000000);// 3 sec
 	while(1){
+		if(timer_cb_cnt > old_timer_cb_cnt)
+		{
+			printf("Timer callback: %d\n",timer_cb_cnt);
+			old_timer_cb_cnt = timer_cb_cnt;
+		}
 		if(timer_cb_cnt >10){
 			coines_timer_stop(COINES_TIMER_INSTANCE_1);
 			puts("stopping timer");
@@ -653,15 +666,19 @@ int test_fs(void)
 	}
 	return 0;
 }
-/*Non interactive test-driver. Call each driver individually and rebuild */
+int shell_main(void);
 int main()
 {
+	/*Uncomment to run test-drivers in an interactive console shell.*/
+
+	shell_main();
+	/*Uncomment one or more tests to run as a batch.*/
 	// test_usb_cdc();			
 	// test_ble();
 	// test_i2c();		//Not valid for Nicla	
 	// test_spi();		//different implementations for AB3 and Nicla
 	// test_aux_spi();	//Not valid for Nicla, requires build with board revision 2	for AB3
-	test_bat_temp();	
+	// test_bat_temp();	
 	// test_gpio_led();			
 	// test_gpio_int();
 	// test_timed_gpio_int();
@@ -676,7 +693,7 @@ int main()
 }
 
 /*Interactive test driver. The test is selected via console*/
-int _main(void)
+int shell_main(void)
 {
 	int tn=0, len=0;
 	char cmd[100];

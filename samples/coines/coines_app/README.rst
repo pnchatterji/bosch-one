@@ -40,7 +40,29 @@ Prerequisite: nrf Connect is installed on the host machine, and bosch-one module
 Sample Output
 *************
 
-There are over ten semi-interactive tests covering different parts of the COINES API. The desired test
+There are over ten semi-interactive tests covering different parts of the COINES API. The desired tests
 can be activated in the main() function, and the others commented out. The output depends on the
 selected test. Self-explanatory console prompts guide the user in performing the tests.
+There is also an interactive shell for running the desired test from the console. This can be
+run by activating shell_main() in main().
+
+This is the output displayed by the interactive test shell. Enter the desired test number to execute it.
+
+.. code-block:: console
+
+	1. test_usb_cdc
+	2. test_ble
+	3. test_i2c
+	4. test_spi
+	5. test_bat_temp
+	6. test_gpio_led
+	7. test_gpio_int
+	8. test_timer_interrupt
+	9. test_sys_cmds
+	10. test_fs
+	11. test_timed_gpio_int
+	100. Quit TEST Application
+	Enter Test no:
+
+
 

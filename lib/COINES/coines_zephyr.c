@@ -242,8 +242,7 @@ uint16_t coines_read_intf(enum coines_comm_intf intf, void *buffer, uint16_t len
     {
         bytes_read = (uint16_t)usb_cdc_read(buffer, len);
     }
-    else 
-    if (intf == COINES_COMM_INTF_BLE)
+    else if (intf == COINES_COMM_INTF_BLE)
     {
         bytes_read = (uint16_t)ble_service_nus_read(buffer, len);
     }
