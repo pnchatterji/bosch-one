@@ -92,11 +92,9 @@ int usb_cdc_init(void)
 		return -EIO;
 	}
 #ifdef CONFIG_USB_CDC_ACM
-	ret = usb_enable(NULL);
-	if (ret != 0) {
-		LOG_ERR("Failed to enable USB");
-		return -EIO;
-	}
+	usb_enable(NULL); /*DO NOT check return value, as it may fail if it 
+						has already been called once e.g. in board.c, 
+						which is actually OK*/
 #endif
 	ring_buf_init(&ringbufrx, sizeof(ring_buffer_rx), ring_buffer_rx);
 	ring_buf_init(&ringbuftx, sizeof(ring_buffer_tx), ring_buffer_tx);

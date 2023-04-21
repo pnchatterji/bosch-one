@@ -37,6 +37,13 @@ Prerequisite: nrf Connect is installed on the host machine, and bosch-one module
 7. Follow the instructions in the bosch-one/doc folder for flashing and running on the target board
 8. Launch a console application such as HTERM and connect to the target for performing the tests.
 
+Recommended Settings for HTERM
+******************************
+Send on Enter: CR 
+Show newlines: No
+Newline At: CR
+Baud:115200
+
 Sample Output
 *************
 
@@ -47,6 +54,8 @@ There is also an interactive shell for running the desired test from the console
 run by activating shell_main() in main().
 
 This is the output displayed by the interactive test shell. Enter the desired test number to execute it.
+After the test, press ENTER to re-display the menu and run another test (This requires the
+setting *Send on Enter: CR* in HTERM to function properly).  
 
 .. code-block:: console
 
@@ -57,12 +66,16 @@ This is the output displayed by the interactive test shell. Enter the desired te
 	5. test_bat_temp
 	6. test_gpio_led
 	7. test_gpio_int
-	8. test_timer_interrupt
-	9. test_sys_cmds
-	10. test_fs
-	11. test_timed_gpio_int
+	8. test_timed_gpio_int
+	9. test_timer_interrupt
+	10. test_sys_cmds
+	11. test_fs
+	12. fs_format_remount
+	13. print_dir
 	100. Quit TEST Application
 	Enter Test no:
+
+
 
 
 

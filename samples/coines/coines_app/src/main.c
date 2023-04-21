@@ -313,14 +313,17 @@ int test_aux_spi(void)
 int test_ble(void)
 {
 	uint8_t buffer[100];
-	int len;
+	uint8_t str[100];
+	int len, istr=0;
+	bool testover=false;
     struct coines_ble_config bleconfig = {
 			.name = "APP3.0_BLE_INPUT",
 			.tx_power = COINES_TX_POWER_0_DBM
 	};
     coines_ble_config(&bleconfig);
+	puts("Connect with nrf Toolkit or similar BLE console client.");
     coines_open_comm_intf(COINES_COMM_INTF_BLE,NULL); //Wait here till BLE/USB is connnected
-	puts("Enter a text to echo, type quit to stop test");
+	puts("Enter a text to echo in the BLE console terminated by ENTER,\n it will be echoed back to BLE console and printed here.\n Type quit[ENTER] to stop test");
     while (1)
     {
 		len = coines_intf_available(COINES_COMM_INTF_BLE);
@@ -331,11 +334,25 @@ int test_ble(void)
 			coines_write_intf(COINES_COMM_INTF_BLE, buffer, len);//echo back
 			buffer[(len>=sizeof(buffer))?(sizeof(buffer)-1):len]=0;
 			printf("%d bytes read: %s\n",len, buffer);
-			if(strcmp(buffer,"quit")  == 0)
-				break;
+			for(int i =0;i<len;i++)
+			{
+				if(buffer[i]== '\r' || buffer[i]== '\n' || istr >= (sizeof(str)-1))
+				{
+					str[istr]=0;
+					printf("input string:%s\n",str);
+					istr =0;
+					if(strcmp(str,"quit")  == 0)
+						testover =true;
+					break;
+				}
+				str[istr++] = buffer[i];
+			}
+			if(testover)
+			break;
 		}
-
+		coines_delay_msec(100);//yield to allow BLE write thread to run
     }
+	puts("BLE test over");
     coines_close_comm_intf(COINES_COMM_INTF_BLE,NULL);
     return 0;	
 }
@@ -411,130 +428,102 @@ int ncb_1=0,ncb_2=0;
 void cb_1(uint32_t pin, uint32_t polarity)
 {
 	ncb_1++;
-	printf("Button 1 pressed %d pin%d polarity%d\n",ncb_1,pin,polarity);
 }
 void cb_2(uint32_t pin, uint32_t polarity)
 {
 	ncb_2++;
-	printf("Button 2 pressed %d pin%d polarity%d\n",ncb_2,pin,polarity);
 }
 
 int test_gpio_int()
 {
-	ncb_1=0;ncb_2=0; 
+	int ncb_1_o=0,ncb_2_o=0;
+	ncb_1=0;ncb_2=0;
 	coines_set_pin_config(COINES_APP30_BUTTON_1,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH); 	  
 	coines_set_pin_config(COINES_APP30_BUTTON_2,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH); 
 	coines_attach_interrupt(COINES_APP30_BUTTON_1,cb_1,COINES_PIN_INTERRUPT_RISING_EDGE);
 	coines_attach_interrupt(COINES_APP30_BUTTON_2,cb_2,COINES_PIN_INTERRUPT_FALLING_EDGE);
-	puts("Press Button 1 and 2 to trigger interrupts (5 times)");
+	puts("Press Button 1 or 2 to trigger interrupts (5 times)");
 	while(1)
 	{
-		if(ncb_1 >5){
-			puts("Deactivating button 1");
-			coines_detach_interrupt(COINES_APP30_BUTTON_1);
-			ncb_1=-1;
+		if(ncb_1 != ncb_1_o)
+		{
+			printf("Button 1 pressed %d \n",ncb_1);
+			ncb_1_o = ncb_1;
 		}
-		if(ncb_2 >5){
-			puts("Deactivating button 2");
-			coines_detach_interrupt(COINES_APP30_BUTTON_2);
-			ncb_2 =-1;
+		if(ncb_2 != ncb_2_o)
+		{
+			printf("Button 2 pressed %d \n",ncb_2);
+			ncb_2_o = ncb_2;
 		}
-		if(ncb_1 < 0 && ncb_2< 0)
+		if((ncb_1 + ncb_2) >5)
 		{
 			puts("GPIO test over");
 			break;
 		}
 	}
+	coines_detach_interrupt(COINES_APP30_BUTTON_1);
+	coines_detach_interrupt(COINES_APP30_BUTTON_2);
 	return 0;
 }
 
 /*
  * Timed GPIO Interrupt API Test (using PPI)
  */
-
+uint64_t ns_p=0;
 void cb_3(uint64_t ns,uint32_t pin, uint32_t polarity)
 {
 	ncb_1++;
-	printf("Button 1 pressed at ns %lx%08lx\n",((unsigned long) (ns>>32)), ((unsigned long)ns));
+	ns_p = ns;
 }
 void cb_4(uint64_t ns,uint32_t pin, uint32_t polarity)
 {
 	ncb_2++;
-	printf("Button 2 pressed at ns %lx%08lx\n",((unsigned long) (ns>>32)), ((unsigned long)ns));
+	ns_p = ns;
 }
+
 int test_timed_gpio_int()
 {
-	ncb_1=0;ncb_2=0; 
+	int ncb_1_o=0,ncb_2_o=0;
+	int err1=0,err2=0;
+	ncb_1=0;ncb_2=0;
+	ns_p=0;
 	coines_open_comm_intf(COINES_COMM_INTF_USB,NULL); //Required for starting capture timer
 	coines_set_pin_config(COINES_APP30_BUTTON_1,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH); 	  
+	err1 = coines_attach_timed_interrupt(COINES_APP30_BUTTON_1,cb_3,COINES_PIN_INTERRUPT_RISING_EDGE);
+#ifdef CONFIG_BOARD_BST_AB3_NRF52840
 	coines_set_pin_config(COINES_APP30_BUTTON_2,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH);
-	int err1 = coines_attach_timed_interrupt(COINES_APP30_BUTTON_1,cb_3,COINES_PIN_INTERRUPT_RISING_EDGE);
-	int err2 = coines_attach_timed_interrupt(COINES_APP30_BUTTON_2,cb_4,COINES_PIN_INTERRUPT_FALLING_EDGE);	
-
+	err2 = coines_attach_timed_interrupt(COINES_APP30_BUTTON_2,cb_4,COINES_PIN_INTERRUPT_FALLING_EDGE);	
+#endif
 	if(err1!=0 || err2 != 0)
 	{
-		printf("Error attaching interrupt %d %d",err1,err2);
+		printf("Error attaching interrupt %d %d\n",err1,err2);
 		return 1;
 	}
 	puts("Press Button 1 and 2 to trigger interrupts (5 times)");
 	while(1)
 	{
-		if(ncb_1 >5){
-			puts("Deactivating button 1");
-			ncb_1=-1;
-			coines_detach_timed_interrupt(COINES_APP30_BUTTON_1);
+		if(ncb_1 != ncb_1_o)
+		{
+			printf("Button 1 pressed at ns %lx%08lx\n",((unsigned long) (ns_p>>32)), ((unsigned long)ns_p));
+			ncb_1_o = ncb_1;
 		}
-		if(ncb_2 >5){
-			puts("Deactivating button 2");			
-			ncb_2 =-1;
-			coines_detach_timed_interrupt(COINES_APP30_BUTTON_2);
+		if(ncb_2 != ncb_2_o)
+		{
+			printf("Button 2 pressed at ns %lx%08lx\n",((unsigned long) (ns_p>>32)), ((unsigned long)ns_p));
+			ncb_2_o = ncb_2;
 		}
-		if(ncb_1 < 0 && ncb_2< 0)
+		if((ncb_1 + ncb_2) >5)
 		{
 			puts("Timed Interrupt test over");
 			break;
 		}
 	}
-	
-	return 0;
-}
-int test_mixed_gpio_int()
-{
-	ncb_1=0;ncb_2=0; 
-	coines_open_comm_intf(COINES_COMM_INTF_USB,NULL); //Required for starting capture timer
-	coines_set_pin_config(COINES_APP30_BUTTON_1,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH); 	  
-	coines_set_pin_config(COINES_APP30_BUTTON_2,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH);
-	coines_attach_interrupt(COINES_APP30_BUTTON_1,cb_1,COINES_PIN_INTERRUPT_RISING_EDGE);
-	int err1 = coines_attach_timed_interrupt(COINES_APP30_BUTTON_2,cb_4,COINES_PIN_INTERRUPT_FALLING_EDGE);	
-
-	if(err1!=0 )
-	{
-		printf("Error attaching interrupt %d",err1);
-		return 1;
-	}
-	puts("Press Button 1 and 2 to trigger interrupts (5 times)");
-	while(1)
-	{
-		if(ncb_1 >5){
-			puts("Deactivating button 1");
-			ncb_1=-1;
-			
-		}
-		if(ncb_2 >5){
-			puts("Deactivating button 2");			
-			ncb_2 =-1;
-		}
-		if(ncb_1 < 0 && ncb_2< 0)
-		{
-			puts("Mixed Interrupt test over");
-			break;
-		}
-	}
+	coines_detach_timed_interrupt(COINES_APP30_BUTTON_1);
+#ifdef CONFIG_BOARD_BST_AB3_NRF52840
 	coines_detach_timed_interrupt(COINES_APP30_BUTTON_2);
-	
+#endif
 	return 0;
 }
-
 /*
  * Timer API Test
  */
@@ -599,22 +588,117 @@ int test_sys_cmds(void)
 #else
 #define FS_DRIVE ""
 #endif
-int test_fs(void)
+/* Format-Remount function*/
+void fs_format_remount(void);
+
+#if defined(CONFIG_FILE_SYSTEM_LITTLEFS)
+#include <zephyr/fs/littlefs.h>
+#include <lfs.h>
+#define PARTITION_NODE DT_NODELABEL(lfs1)
+FS_FSTAB_DECLARE_ENTRY(PARTITION_NODE);
+void fs_format_remount(void)
+{
+	struct fs_mount_t *mp =	&FS_FSTAB_ENTRY(PARTITION_NODE);
+	struct fs_littlefs *fs = mp->fs_data;
+	struct lfs_config cfg ={0};
+	fs->cfg = cfg;
+	int rc = lfs_format(&fs->lfs, &fs->cfg);
+	printf("format done. Ret:%d\n",rc);
+	lfs_mount(&fs->lfs, &fs->cfg);
+}
+#elif defined(CONFIG_FILE_SYSTEM_FLOGFS)
+#include <fs/flogfs_fs.h>
+void fs_format_remount(void)
+{
+	int rc = flogfs_format_remount);
+	printf("format done. Ret:%d\n",rc);
+}
+#else
+void fs_format_remount(void)
+{
+	printf("format remount not available\n");
+}
+#endif
+
+static struct fs_dirent ent = { 0 };
+struct fs_dir_t dir;
+int print_dir(void)
+{
+	int rc;
+
+	fs_dir_t_init(&dir);
+	rc = fs_opendir(&dir, FS_DRIVE);
+	printf("%s opendir: %d\n", FS_DRIVE, rc);
+
+	while (rc >= 0) {
+
+		rc = fs_readdir(&dir, &ent);
+		if (rc < 0) {
+			break;
+		}
+		if (ent.name[0] == 0) {
+			printf("End of files\n");
+			break;
+		}
+		printf("  %c %d %s\n",
+		       (ent.type == FS_DIR_ENTRY_FILE) ? 'F' : 'D',
+		       (int)ent.size,
+		       ent.name);
+	}
+	(void)fs_closedir(&dir);
+	return rc;
+}
+int print_dir_posix(void)
+{
+	DIR *dp;
+  struct dirent *ep;     
+  dp = opendir (FS_DRIVE);
+  if (dp != NULL)
+  {
+    while ((ep = readdir (dp)) != NULL && ep->d_name[0]!=0)
+      puts (ep->d_name);
+          
+    (void) closedir (dp);
+    return 0;
+  }
+  else
+  {
+    perror ("Couldn't open the directory");
+    return -1;
+  }
+}
+static char rbuf[3000]={0};
+
+void test_fs()
 {
 	FILE *f;
-	puts("\nStarting File System Test\n");
-	f = fopen(FS_DRIVE "/posix.txt","a");
+	int rc;
+	puts("\nStarting POSIX FS Test\n");
+	print_dir();
+	f = fopen(FS_DRIVE "/posix3.txt","a");
 	if(f== NULL)
 	{
 		puts("error opening file for writing");
 	}
 	else
 	{
-		for(int i=0;i<10;i++)
-			fprintf(f,"Hello posix %d\n",i);
+		int nbytes=0;
+		for(int i=0;i<10;i++){
+			rc = fprintf(f,"Hello posix %03d\n",i);
+			if(rc <16) {
+				printf("write error at %d bytes rc=%d\n",nbytes,rc);
+				break;
+			}
+			else
+				nbytes +=rc;
+		}
+		if(rc > 0)
+				printf("%d bytes written without errors\n",nbytes);
+
 		fputs("byebye posix 100",f);
-		fclose(f);
-		f = fopen(FS_DRIVE "/posix.txt","r");
+		rc=fclose(f);
+		printf("fclose after writing p1: %d\n",rc);
+		f = fopen(FS_DRIVE "/posix3.txt","r");
 		if(f== NULL)
 		{
 			puts("error opening file for reading");
@@ -625,11 +709,13 @@ int test_fs(void)
 			int d;
 			while(fscanf(f,"%s %s %d",str1,str2,&d) == 3)
 				printf("%s %s %d\n",str1,str2,d);
-			fclose(f);
+			rc=fclose(f);
+			printf("fclose after reading p1: %d\n",rc);
 		}
 		
 	}
-	f = fopen(FS_DRIVE "/posix_2.txt","a");
+	
+	f = fopen(FS_DRIVE "/posix4.txt","a");
 	if(f== NULL)
 	{
 		puts("error opening file2 for writing");
@@ -637,34 +723,25 @@ int test_fs(void)
 	else
 	{
 		char *msg = "Hello again Posix 1\nHello again Posix 2\nHello again Posix 3\n";
-		fwrite(msg,1,strlen(msg)+1,f);
-		fclose(f);
-		f = fopen(FS_DRIVE "/posix_2.txt","r");
+		fwrite(msg,1,strlen(msg),f);
+		rc = fclose(f);
+		printf("fclose after writing p2: %d\n",rc);
+		f = fopen(FS_DRIVE "/posix4.txt","r");
 		if(f== NULL)
 		{
 			puts("error opening file2 for reading");
 		}
 		else
 		{
-			char buf[100];
-			fread(buf,1,100,f);
-			puts(buf);
-			fclose(f);
-		}
+			fread(rbuf,1,sizeof(rbuf),f);
+			puts(rbuf);
+			rc = fclose(f);
+			printf("fclose after reading p2: %d\n",rc);
+
+		} 
 	}
-	DIR *dp =opendir(FS_DRIVE "/");
-	 struct dirent *dirp;
-	if(dp==NULL)
-	{
-		puts("error reading directory");
-	}
-	{
-		puts("Directory:");
-		while ((dirp = readdir(dp)) != NULL && dirp->d_name[0] != 0)
-        	printf("%s\n", dirp->d_name);
-    	closedir(dp);
-	}
-	return 0;
+	
+	print_dir();
 }
 int shell_main(void);
 int main()
@@ -682,13 +759,11 @@ int main()
 	// test_gpio_led();			
 	// test_gpio_int();
 	// test_timed_gpio_int();
-	// test_mixed_gpio_int();
 	// test_timer_interrupt();	
 	// test_sys_cmds();			
 	// test_fs();
 	while(1)
 	{
-
 	}
 }
 
@@ -710,10 +785,12 @@ int shell_main(void)
 			"5. test_bat_temp\n"
 			"6. test_gpio_led\n"
 			"7. test_gpio_int\n"
-			"8. test_timer_interrupt\n"
-			"9. test_sys_cmds\n"
-			"10. test_fs\n"
-			"11. test_timed_gpio_int\n"
+			"8. test_timed_gpio_int\n"
+			"9. test_timer_interrupt\n"
+			"10. test_sys_cmds\n"
+			"11. test_fs\n"
+			"12. fs_format_remount\n"
+			"13. print_dir\n"
 			"100. Quit TEST Application\n"
 			"Enter Test no:"
 			);
@@ -758,16 +835,22 @@ int shell_main(void)
 				test_gpio_int();
 				break;
 			case 8:
-				test_timer_interrupt();
+				test_timed_gpio_int();
 				break;
 			case 9:
-				test_sys_cmds();
+				test_timer_interrupt();
 				break;
 			case 10:
-				test_fs();
+				test_sys_cmds();
 				break;
 			case 11:
-				test_timed_gpio_int();
+				test_fs();
+				break;
+			case 12:
+				fs_format_remount();
+				break;
+			case 13:
+				print_dir();
 				break;
 			case 100:
 				puts("Quitting Test app");
@@ -775,6 +858,19 @@ int shell_main(void)
 			default:
 				printf("Unknown test number %d\n",tn);
 				break;
+		}
+		puts("Press ENTER to continue");
+		//wait for user to press something
+		while (1)
+		{
+			len = coines_intf_available(COINES_COMM_INTF_USB);
+			if(len >0)
+			{
+				//reject user input and continue test shell
+				coines_read_intf(COINES_COMM_INTF_USB, cmd, sizeof(cmd));
+				break;
+			}
+			coines_delay_msec(1);
 		}
 	}
 	coines_close_comm_intf(COINES_COMM_INTF_USB,NULL);

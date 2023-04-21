@@ -50,6 +50,7 @@ void hts_proc(void);
 K_PIPE_DEFINE(nus_recv_pipe, CONFIG_NUS_READ_BUF_SIZE, 4);
 static struct bt_conn *current_conn;
 static struct bt_conn *auth_conn;
+static bool ad_active =false;
 
 /*HTS elements added to advertisment structure*/
 static const struct bt_data ad[] = {
@@ -57,7 +58,8 @@ static const struct bt_data ad[] = {
 	BT_DATA_BYTES(BT_DATA_UUID16_ALL,
 		  BT_UUID_16_ENCODE(BT_UUID_HTS_VAL),
 		  BT_UUID_16_ENCODE(BT_UUID_DIS_VAL),
-		  BT_UUID_16_ENCODE(BT_UUID_BAS_VAL)),
+		  BT_UUID_16_ENCODE(BT_UUID_BAS_VAL)
+		),
 	BT_DATA(BT_DATA_NAME_COMPLETE, DEVICE_NAME, DEVICE_NAME_LEN),
 };
 
@@ -80,14 +82,6 @@ static void connected(struct bt_conn *conn, uint8_t err)
 	LOG_INF("Connected %s", addr);	//log_strdup(addr) no longer required
 
 	current_conn = bt_conn_ref(conn);
-
-	//dk_set_led_on(CON_STATUS_LED);
-	
-	cerr = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad), sd,
-			      ARRAY_SIZE(sd));
-	if (cerr) {
-		LOG_ERR("Advertising failed to re-start (err %d)", err);
-	}
 }
 
 static void disconnected(struct bt_conn *conn, uint8_t reason)
@@ -106,8 +100,21 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
 	if (current_conn) {
 		bt_conn_unref(current_conn);
 		current_conn = NULL;
-		//dk_set_led_off(CON_STATUS_LED);
 	}
+	ad_active = false; /*restart advt after disconnection*/
+}
+
+int ble_service_ad_proc()
+{
+	if(current_conn != NULL || ad_active)
+		return 0;
+	int cerr = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad), sd,
+			      ARRAY_SIZE(sd));
+	if (cerr) {
+		LOG_ERR("Advertising failed to (re)start (err %d)", cerr);
+	}
+	ad_active =true;
+	return 0;
 }
 
 bool ble_service_nus_connected(void)
@@ -184,9 +191,10 @@ int ble_service_init(void)
 
 
 	err = bt_enable(NULL);
-	if (err) 
-	 return err;
-
+	if (err) {
+		LOG_ERR("BT Enable failed (err %d)", err);
+		return err;
+	}
 	//k_sem_give(&ble_init_ok);//not reqd if thread starting in init
 	ble_write_thread_id = k_thread_create(&ble_write_thread_data, ble_write_thread_stack_area,
                                  K_THREAD_STACK_SIZEOF(ble_write_thread_stack_area),
@@ -204,13 +212,7 @@ int ble_service_init(void)
 		return err;
 	}
 
-	err = bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad), sd,
-			      ARRAY_SIZE(sd));
-	if (err) {
-		LOG_ERR("Advertising failed to start (err %d)", err);
-		return err;
-	}
-	return 0;
+	return ble_service_ad_proc();
 }
 //internal function used by Coines_comm_intf.c
 int ble_service_nus_write(uint8_t *data,int len)
@@ -230,6 +232,7 @@ void ble_write_thread(void *arg1, void *arg2, void *arg3)
 	for (;;) {
 		k_sleep(K_MSEC(CONFIG_HTS_PROC_RATE_MS));
 		hts_proc();
+		ble_service_ad_proc();
 	}
 }
 
