@@ -25,14 +25,23 @@
 #define TIMER_TICKS_PER_SECOND         (TIMER_FREQUENCY / (1 + TIMER_PRESCALAR))
 #define TIMER_TICKS_TO_USEC(t)         (((uint64_t)t * UINT64_C(1)) / TIMER_TICKS_PER_SECOND)
 #define TIMER_TICKS_TO_NSEC(t)         (((uint64_t)t * UINT64_C(1000)) / TIMER_TICKS_PER_SECOND)
-/*Timer instance 3 is used for timestamp as we need more number of capture channels*/
-static const nrfx_timer_t timer_instance = NRFX_TIMER_INSTANCE(3);
 
-#define MAX_TIMER_CC_CHANNELS 6
-/* Timer cc channel lookup table */
-static uint32_t timer_cc_channel[MAX_TIMER_CC_CHANNELS] =
+/*Timer instance 3 in nrf52 is used by default in Kconfig.coines as it has more 
+capture channels (6) than the others. Six is presumed to be the max array size in 
+below mappings. This may need to be changed for future architectures*/
+
+static const nrfx_timer_t timer_instance = NRFX_TIMER_INSTANCE(CONFIG_COINES_TIMED_INTR_TIMER); 
+#define TIMER_IRQ      NRFX_CONCAT_3(TIMER,CONFIG_COINES_TIMED_INTR_TIMER,_IRQn)
+#define TIMER_IRQ_HDLR NRFX_CONCAT_3(nrfx_timer_, CONFIG_COINES_TIMED_INTR_TIMER, _irq_handler )
+
+#define MAX_TIMER_CC_CHANNELS NRF_TIMER_CC_CHANNEL_COUNT(CONFIG_COINES_TIMED_INTR_TIMER)
+/* Timer cc task lookup table */
+static nrf_timer_task_t timer_cc_tasks[] =
 { NRF_TIMER_TASK_CAPTURE0, NRF_TIMER_TASK_CAPTURE1, NRF_TIMER_TASK_CAPTURE2, NRF_TIMER_TASK_CAPTURE3,
   NRF_TIMER_TASK_CAPTURE4, NRF_TIMER_TASK_CAPTURE5 };
+static nrf_timer_cc_channel_t timer_cc_channels[] =
+{ NRF_TIMER_CC_CHANNEL0,NRF_TIMER_CC_CHANNEL1,NRF_TIMER_CC_CHANNEL2,NRF_TIMER_CC_CHANNEL3,
+  NRF_TIMER_CC_CHANNEL4,NRF_TIMER_CC_CHANNEL5 };
 
 /* Timer cc channel allocation array */
 /* timer_cc_channel_no -> 0 used for compare event(overflow) */
@@ -45,7 +54,7 @@ static volatile uint32_t timer_overflow_count = 0;
 typedef void (*timed_interrupt_cb)(uint64_t timestamp, uint32_t multiio_pin, uint32_t multiio_pin_polarity);
 struct coines_timed_interrupt_config
 {
-    uint8_t timer_cc_channel;
+    nrf_timer_cc_channel_t timer_cc_channel;
     uint8_t ppi_channel;
     timed_interrupt_cb cb;
 };
@@ -53,39 +62,41 @@ struct coines_timed_interrupt_config
 struct coines_timed_interrupt_config timed_interrupt_config[COINES_SHUTTLE_PIN_MAX];
 
 static nrfx_gpiote_in_config_t gpio_config = NRFX_GPIOTE_RAW_CONFIG_IN_SENSE_LOTOHI(true);
+#define GPIO_PORT(pin)    DT_PROP_BY_PHANDLE_IDX(DT_NODELABEL(pin), gpios, 0, port)
+#define GPIO_PIN(pin)     DT_GPIO_PIN_BY_IDX(DT_NODELABEL(pin), gpios, 0)
+#define GPIO_ABS_PIN(pin) NRF_GPIO_PIN_MAP(GPIO_PORT(pin), GPIO_PIN(pin))
 
-#define  GPIO_0                       NRF_GPIO_PIN_MAP(0, 14) /* SB1_4 - P0.14 (I2C1_SCL) */
-#define  GPIO_1                       NRF_GPIO_PIN_MAP(0, 13) /* SB1_5 - P0.13 (I2C1_SDA) */
-#define  GPIO_2                       NRF_GPIO_PIN_MAP(1, 1) /* INT1 - SB1_6 - P1.01 */
-#define  GPIO_3                       NRF_GPIO_PIN_MAP(1, 8) /* INT2 - SB1_7 - P1.08 */
-#define  GPIO_CS                      NRF_GPIO_PIN_MAP(0, 24) /* SB2_1 - P0.24 */
-#define  GPIO_SDO                     NRF_GPIO_PIN_MAP(0, 15) /* SB2_3 - P0.15*/
-#define  GPIO_4                       NRF_GPIO_PIN_MAP(1, 3) /* SB2_5 - P1.03 */
-#define  GPIO_5                       NRF_GPIO_PIN_MAP(1, 2) /* SB2_6 - P1.02 */
-#define  GPIO_6                       NRF_GPIO_PIN_MAP(1, 11) /* SB2_7 - P1.11 */
-#define  GPIO_7                       NRF_GPIO_PIN_MAP(1, 10) /* SB2_8 - P1.10 */
-#define  GPIO_SDI                     NRF_GPIO_PIN_MAP(0, 6) /* SB2_4 - P0.6*/
-#define  GPIO_SCK                     NRF_GPIO_PIN_MAP(0, 16) /* SB2_2 - P0.16*/
-#define MCU_LED_R                     NRF_GPIO_PIN_MAP(0, 7)
-#define MCU_LED_G                     NRF_GPIO_PIN_MAP(0, 11)
-#define MCU_LED_B                     NRF_GPIO_PIN_MAP(0, 12)
-#define SWITCH1                       NRF_GPIO_PIN_MAP(1, 9)
-#define SWITCH2                       NRF_GPIO_PIN_MAP(0, 25)
-uint8_t multi_io_map[COINES_SHUTTLE_PIN_MAX] = {
-    [COINES_SHUTTLE_PIN_9] = GPIO_1, [COINES_SHUTTLE_PIN_14] = GPIO_4, [COINES_SHUTTLE_PIN_15] = GPIO_5,
-    [COINES_SHUTTLE_PIN_16] = GPIO_SDI, [COINES_SHUTTLE_PIN_22] = GPIO_7, [COINES_SHUTTLE_PIN_8] = GPIO_0,
-    [COINES_SHUTTLE_PIN_20] = GPIO_2, [COINES_SHUTTLE_PIN_21] = GPIO_3, [COINES_SHUTTLE_PIN_19] = GPIO_6,
-    [COINES_SHUTTLE_PIN_7] = GPIO_CS, 0, 0, 0, 0, 0, 0,
-
-    /* Native APP3.0 pins */
-    [COINES_MINI_SHUTTLE_PIN_1_4] = GPIO_0, [COINES_MINI_SHUTTLE_PIN_1_5] = GPIO_1,
-    [COINES_MINI_SHUTTLE_PIN_1_6] = GPIO_2, [COINES_MINI_SHUTTLE_PIN_1_7] = GPIO_3,
-    [COINES_MINI_SHUTTLE_PIN_2_5] = GPIO_4, [COINES_MINI_SHUTTLE_PIN_2_6] = GPIO_5,
-    [COINES_MINI_SHUTTLE_PIN_2_1] = GPIO_CS, [COINES_MINI_SHUTTLE_PIN_2_3] = GPIO_SDO, [COINES_APP30_LED_R] = MCU_LED_R,
-    [COINES_APP30_LED_G] = MCU_LED_G, [COINES_APP30_LED_B] = MCU_LED_B, [COINES_APP30_BUTTON_1] = SWITCH1,
-    [COINES_APP30_BUTTON_2] = SWITCH2, [COINES_MINI_SHUTTLE_PIN_2_7] = GPIO_6, [COINES_MINI_SHUTTLE_PIN_2_8] = GPIO_7,
-    [COINES_SHUTTLE_PIN_SDO] = GPIO_SDO
+static uint8_t multi_io_map[COINES_SHUTTLE_PIN_MAX] = {
+                             [COINES_MINI_SHUTTLE_PIN_1_4] = GPIO_ABS_PIN(shuttle_pin_1_4),
+                             [COINES_MINI_SHUTTLE_PIN_1_5] = GPIO_ABS_PIN(shuttle_pin_1_5),
+                             [COINES_MINI_SHUTTLE_PIN_1_6] = GPIO_ABS_PIN(shuttle_pin_1_6),
+                             [COINES_MINI_SHUTTLE_PIN_1_7] = GPIO_ABS_PIN(shuttle_pin_1_7),
+                             [COINES_MINI_SHUTTLE_PIN_2_5] = GPIO_ABS_PIN(shuttle_pin_2_5),
+                             [COINES_MINI_SHUTTLE_PIN_2_6] = GPIO_ABS_PIN(shuttle_pin_2_6),
+                             [COINES_MINI_SHUTTLE_PIN_2_1] = GPIO_ABS_PIN(shuttle_pin_2_1),
+                             [COINES_MINI_SHUTTLE_PIN_2_3] = GPIO_ABS_PIN(shuttle_pin_2_3),
+                             [COINES_APP30_LED_R] = GPIO_ABS_PIN(led_red),
+                             [COINES_APP30_LED_G] = GPIO_ABS_PIN(led_green),
+                             [COINES_APP30_LED_B] = GPIO_ABS_PIN(led_blue),
+                             [COINES_APP30_BUTTON_1] = GPIO_ABS_PIN(button_t1),
+                             [COINES_APP30_BUTTON_2] = GPIO_ABS_PIN(button_t2),
+                             [COINES_MINI_SHUTTLE_PIN_2_7] = GPIO_ABS_PIN(shuttle_pin_2_7),
+                             [COINES_MINI_SHUTTLE_PIN_2_8] = GPIO_ABS_PIN(shuttle_pin_2_8),
+                             /*Additionally map AB2.0 pin enums to AB3.0 pins, so that code written using AB2.0
+                             pin enums can run on AB3.0*/
+                             [COINES_SHUTTLE_PIN_7] = GPIO_ABS_PIN(shuttle_cs),     /*< AB2 CS  = AB3 CS*/
+                             [COINES_SHUTTLE_PIN_8] = GPIO_ABS_PIN(shuttle_gpio0),  /*< AB2 Multi-IO 5 =AB3 GPIO0*/
+                             [COINES_SHUTTLE_PIN_9] = GPIO_ABS_PIN(shuttle_gpio1),  /*< AB2 Multi-IO 0 = AB3 GPIO1*/
+                             [COINES_SHUTTLE_PIN_14] = GPIO_ABS_PIN(shuttle_gpio4_ocsb),/*<AB2  Multi-IO 1 = AB3 GPIO4*/
+                             [COINES_SHUTTLE_PIN_15] = GPIO_ABS_PIN(shuttle_gpio5_ascx),/*<AB2  Multi-IO 2 = AB3 GPIO5*/
+                             //[COINES_SHUTTLE_PIN_16] = GPIO_ABS_PIN(shuttle_sdi_sda), /*<AB2  Multi-IO 3 = AB3 SDI/SDA TBD????*/
+                             [COINES_SHUTTLE_PIN_19] = GPIO_ABS_PIN(shuttle_gpio6_osdo),/*<AB2  Multi-IO 8 = AB3 GPIO6*/
+                             [COINES_SHUTTLE_PIN_20] = GPIO_ABS_PIN(shuttle_gpio2_int1),/*<AB2  Multi-IO 6 = AB3 GPIO2/INT1*/
+                             [COINES_SHUTTLE_PIN_21] = GPIO_ABS_PIN(shuttle_gpio3_int2),/*<AB2  Multi-IO 7 = GPIO3/INT2*/
+                             [COINES_SHUTTLE_PIN_22] = GPIO_ABS_PIN(shuttle_gpio7_asdx),/*<AB2  Multi-IO 4 = AB3 GPIO7*/
+                             [COINES_SHUTTLE_PIN_SDO] = GPIO_ABS_PIN(shuttle_sdo),
 };
+
 /* Array to map corresponding COINES polarity states to nRF polarity states*/
 uint8_t map_nrfpol_to_coinespol[COINES_PIN_INTERRUPT_MODE_MAXIMUM] = {
     0, [NRF_GPIOTE_POLARITY_LOTOHI] = COINES_PIN_INT_POLARITY_LOW_TO_HIGH,
@@ -134,12 +145,15 @@ static void timer_handler(nrf_timer_event_t event_type, void* p_context)
 /*!
  * @brief  initialization code for timed interrupt feature to be called from coines_open_comm_intf
  */
+static bool timed_interrupt_init_done =false;
 int timed_interrupt_init()
 {
+    if(timed_interrupt_init_done)
+       return COINES_SUCCESS;
 	    /* Timer configuration */
     nrfx_timer_config_t timer_config = {
         .frequency = NRF_TIMER_FREQ_16MHz, .mode = NRF_TIMER_MODE_TIMER, .bit_width = NRF_TIMER_BIT_WIDTH_32,
-        .interrupt_priority = NRFX_TIMER_DEFAULT_CONFIG_IRQ_PRIORITY, .p_context = NULL
+        .interrupt_priority = 6, .p_context = NULL
     };
 	
 	/* Configure hardware timer for capturing timestamp */
@@ -151,9 +165,15 @@ int timed_interrupt_init()
                                     0xFFFFFFFF,
                                     NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK,
                                     (bool)true);
-
+        IRQ_DIRECT_CONNECT(TIMER_IRQ, 0, TIMER_IRQ_HDLR, 0);
+        irq_enable(TIMER_IRQ);
+        nrfx_timer_disable(&timer_instance);
+        nrfx_timer_clear(&timer_instance);
         nrfx_timer_enable(&timer_instance);
-        timer_cc_channel_slots[0] = true; //permanently occupy the 0 slot
+        timer_cc_channel_slots[0] = true; /*permanently occupy the 0 slot*/
+        timed_interrupt_init_done = true;
+        nrfx_gpiote_init(7);/*set prio of gpiote lower than timer, so that overflow processing in timer handler
+                            is guaranteed to happen before time value is read in the gpiote handler*/
     }
     else
     {
@@ -169,7 +189,7 @@ static void attach_timed_interrupt_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_pol
 {
         uint64_t total_ticks;
         uint32_t latest_ticks_count;
-
+        nrf_timer_cc_channel_t cc_chan;
         enum coines_multi_io_pin pin_number;
 
         pin_number = get_multiio_pin((uint32_t)pin);
@@ -178,11 +198,10 @@ static void attach_timed_interrupt_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_pol
         {
             return;
         }
-
+        cc_chan = timed_interrupt_config[pin_number].timer_cc_channel;
         /* Get the captured ticks from the timer */
-        latest_ticks_count =
-            nrfx_timer_capture_get(&timer_instance,
-                                (nrf_timer_cc_channel_t)timed_interrupt_config[pin_number].timer_cc_channel);
+        nrfx_timer_capture(&timer_instance,cc_chan);
+        latest_ticks_count = nrfx_timer_capture_get(&timer_instance,cc_chan);
 
         total_ticks = ((uint64_t)timer_overflow_count << 32) | latest_ticks_count;
 
@@ -203,6 +222,7 @@ int16_t coines_attach_timed_interrupt(enum coines_multi_io_pin pin_number,
     uint32_t pin_num = multi_io_map[pin_number];
     uint32_t timer_cc_channel_no;
     nrf_ppi_channel_t ppi_channel;
+    nrf_timer_cc_channel_t timer_cc_channel=0;
 
     if (pin_num == 0 || pin_num == 0xff)
     {
@@ -213,11 +233,11 @@ int16_t coines_attach_timed_interrupt(enum coines_multi_io_pin pin_number,
         if(!timer_cc_channel_slots[timer_cc_channel_no])
         break;
     }
-    if (timer_cc_channel_no >= MAX_TIMER_CC_CHANNELS) //no more channels left to allocate
+    if (timer_cc_channel_no >= MAX_TIMER_CC_CHANNELS) /*no more channels left to allocate*/
     {
         return COINES_E_TIMER_CC_CHANNEL_NOT_AVAILABLE;
     }
-
+    timer_cc_channel = timer_cc_channels[timer_cc_channel_no];
     switch(int_mode)
     {
         case  COINES_PIN_INTERRUPT_CHANGE:   
@@ -232,12 +252,13 @@ int16_t coines_attach_timed_interrupt(enum coines_multi_io_pin pin_number,
             break;
     }
 
+    timed_interrupt_init(); /*initialize timer, if not already done previously*/
     if(NRFX_SUCCESS != nrfx_gpiote_in_init(pin_num, &gpio_config, attach_timed_interrupt_handler))
     {
         return COINES_E_CHANNEL_ALLOCATION_FAILED;
     }
-    nrfx_gpiote_in_event_enable(pin_num, true);
-
+    
+    nrfx_gpiote_trigger_enable(pin_num,true);
     if (NRFX_SUCCESS != nrfx_ppi_channel_alloc(&ppi_channel))
     {
         return COINES_E_CHANNEL_ALLOCATION_FAILED;
@@ -247,7 +268,7 @@ int16_t coines_attach_timed_interrupt(enum coines_multi_io_pin pin_number,
         nrfx_ppi_channel_assign(ppi_channel, 
             nrfx_gpiote_in_event_addr_get(pin_num),
             nrfx_timer_task_address_get(&timer_instance,
-            (nrf_timer_task_t)timer_cc_channel[timer_cc_channel_no])))
+                timer_cc_tasks[timer_cc_channel_no])))
     {
         return COINES_E_CHANNEL_ASSIGN_FAILED;
     }
@@ -258,7 +279,7 @@ int16_t coines_attach_timed_interrupt(enum coines_multi_io_pin pin_number,
 
     /* Allocate one cc channel for each timed interrupt config */
     timer_cc_channel_slots[timer_cc_channel_no] = true;
-    timed_interrupt_config[pin_number].timer_cc_channel = timer_cc_channel_no;
+    timed_interrupt_config[pin_number].timer_cc_channel = timer_cc_channel;
     timed_interrupt_config[pin_number].ppi_channel = ppi_channel;
     timed_interrupt_config[pin_number].cb = interrupt_cb;
     int_pin_usage_native_emulated[pin_number] = true;
@@ -280,7 +301,7 @@ int16_t coines_detach_timed_interrupt(enum coines_multi_io_pin pin_number)
     uint32_t timer_cc_channel_no = timed_interrupt_config[pin_number].timer_cc_channel;
     /* Cleanup */
     nrfx_gpiote_in_uninit(pin_num);
-    nrfx_gpiote_in_event_disable(pin_num);
+    nrfx_gpiote_trigger_disable(pin_num);
     if (NRFX_SUCCESS != nrfx_ppi_channel_free(timed_interrupt_config[pin_number].ppi_channel))
         return COINES_E_CHANNEL_DEALLOCATION_FAILED;
     //nrfx_ppi_channel_disable(ppi_channel) not called as free does it automatically

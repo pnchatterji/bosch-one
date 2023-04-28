@@ -138,24 +138,23 @@ int16_t coines_open_comm_intf(enum coines_comm_intf intf_type, void *arg)
 	coines_set_pin_config(COINES_APP30_BUTTON_2,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH);
  
     //enable USB/CDC connection for terminal support
-    //rc |= usb_enable(NULL); //done in usb_cdc_init()
-    //wait for connection from terminal TODO:CHECK IF REQUIRED
+#ifdef CONFIG_COINES_INTF_USB_ENABLE 
     usb_cdc_init();
+#endif
+#ifdef CONFIG_COINES_INTF_BLE_ENABLE 
 	if (intf_type == COINES_COMM_INTF_BLE)
     {
         rc |= ble_service_init();
     }
-    
+#endif    
     //Set Blue LED in case of error, set Red LED always (TBD: Is this required?)
     coines_set_led(COINES_LED_RED,COINES_LED_STATE_ON);
     if(rc != 0){
         coines_set_led(COINES_LED_BLUE,COINES_LED_STATE_ON);
     }
-	//timed interrupt feature initialization
-	timed_interrupt_init();
 
 #ifdef COINES_AUTO_TEST
-	//set timeout for JRUN tests to prevent failing tests from blocking the automated script
+	/*set timeout for JRUN tests to prevent failing tests from blocking the automated script*/
     k_timer_start(&t_test_tout,TEST_TIMEOUT_PERIOD,K_NO_WAIT);
 #endif
     return rc;
@@ -193,16 +192,19 @@ int16_t coines_close_comm_intf(enum coines_comm_intf intf_type, void *arg)
  */
 uint16_t coines_intf_available(enum coines_comm_intf intf)
 {
+#ifdef CONFIG_COINES_INTF_USB_ENABLE 
 
     if ((intf == COINES_COMM_INTF_USB) && usb_cdc_connected())
     {
         return (uint16_t)usb_cdc_bytes_available();
     }
-    else if (intf == COINES_COMM_INTF_BLE)
+#endif
+#ifdef CONFIG_COINES_INTF_BLE_ENABLE 
+    if (intf == COINES_COMM_INTF_BLE)
     {
         return (uint16_t)ble_service_nus_bytes_available();
     }
-
+#endif
     return 0;
 }
 /*!
@@ -214,14 +216,18 @@ uint16_t coines_intf_available(enum coines_comm_intf intf)
  */
 bool coines_intf_connected(enum coines_comm_intf intf)
 {
+#ifdef CONFIG_COINES_INTF_BLE_ENABLE 
     if (intf == COINES_COMM_INTF_BLE)
     {
         return ble_service_nus_connected();
     }
-    else if (COINES_COMM_INTF_USB)
+#endif
+#ifdef CONFIG_COINES_INTF_USB_ENABLE 
+    if (COINES_COMM_INTF_USB)
     {
         return usb_cdc_connected();
     }
+#endif
     return false;
 }
 
@@ -238,15 +244,18 @@ uint16_t coines_read_intf(enum coines_comm_intf intf, void *buffer, uint16_t len
 {
     uint16_t bytes_read = 0;
 
+#ifdef CONFIG_COINES_INTF_USB_ENABLE 
     if ((intf == COINES_COMM_INTF_USB) && usb_cdc_connected())
     {
         bytes_read = (uint16_t)usb_cdc_read(buffer, len);
     }
-    else if (intf == COINES_COMM_INTF_BLE)
+#endif
+#ifdef CONFIG_COINES_INTF_BLE_ENABLE 
+    if (intf == COINES_COMM_INTF_BLE)
     {
         bytes_read = (uint16_t)ble_service_nus_read(buffer, len);
     }
-
+#endif
     return bytes_read;
 }
 
@@ -262,14 +271,18 @@ uint16_t coines_read_intf(enum coines_comm_intf intf, void *buffer, uint16_t len
 void coines_write_intf(enum coines_comm_intf intf, void *buffer, uint16_t len)
 {
 
+#ifdef CONFIG_COINES_INTF_USB_ENABLE 
     if ((intf == COINES_COMM_INTF_USB) && usb_cdc_connected() )
     {
         (void)usb_cdc_write(buffer,len);
     }
-    else if (intf == COINES_COMM_INTF_BLE)
+#endif
+#ifdef CONFIG_COINES_INTF_BLE_ENABLE 
+    if (intf == COINES_COMM_INTF_BLE)
     {
         (void)ble_service_nus_write(buffer, len);
     }
+#endif
 }
 /*!
  * @brief Flush the write buffer
@@ -280,10 +293,13 @@ void coines_write_intf(enum coines_comm_intf intf, void *buffer, uint16_t len)
  */
 void coines_flush_intf(enum coines_comm_intf intf)
 {
+#ifdef CONFIG_COINES_INTF_USB_ENABLE 
     if (intf == COINES_COMM_INTF_USB)
     {
         /* Do nothing */
     }
+#endif
+#ifdef CONFIG_COINES_INTF_BLE_ENABLE 
     else if (intf == COINES_COMM_INTF_BLE)
     {
          /* Do nothing */
@@ -291,6 +307,7 @@ void coines_flush_intf(enum coines_comm_intf intf)
          //via POSIX write, but since POSIX access to NUS is not supported in COINES for Zephyr
          //nothing to do here
     }
+#endif
 }
 
 /*!
@@ -1480,7 +1497,14 @@ const char* coines_get_version()
  *
  * @return void
  */
-#define  MAGIC_LOCATION          (0x2003FFF4)
+#ifdef CONFIG_BOARD_BST_AB3_NRF52840
+    #define  MAGIC_LOCATION          (0x2003FFF4)
+#elif CONFIG_BOARD_BST_ARDUINO_NICLA 
+    #define  MAGIC_LOCATION          (0x2000F804)
+#else
+    #error "Magic location not defined for this board"
+#endif
+
 #define  MAGIC_INFO_ADDR         ((int8_t *)(MAGIC_LOCATION))
 #define  APP_START_ADDR          (*(uint32_t *)(MAGIC_LOCATION + 4))
 #define  APP_SP_VALUE            (*(uint32_t *)APP_START_ADDR)
@@ -1488,12 +1512,11 @@ const char* coines_get_version()
 void coines_soft_reset(void)
 {
 #ifndef COINES_AUTO_TEST //Disabled in case of automated testing, as it interferes with it
-    //TODO: below line was in previous version of COINES. It is required for
-    //the bootloader, as per Kevin. To check if this is required or if it
+    //TODO: below operation is done in the baremetal version of COINES. It is required for
+    //the bootloader. To check if this is required in ZCOINES or if it
     //needs to be removed or modified. This address seems to be in an unused 
     //part of the data SRAM
     memcpy((uint32_t *)MAGIC_LOCATION, "COIN", 4); // *MAGIC_LOCATION = 0x4E494F43; // 'N','O','I','C'
-
     //TODO: below line was in previous version of COINES. It is presumably required
     // to "begin at the beginning" after a NVIC_SystemReset(). The Zephyr equivalent
     //sys_reboot(SYS_REBOOT_COLD) takes care of it, so it is not required. So it is

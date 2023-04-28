@@ -14,7 +14,7 @@
             "servertype": "pyocd",
             "targetId": "nrf52",
             "device": "nrf52832",
-            "svdFile": "${config:nrf-connect.topdir}/modules/hal/nordic/nrfx/mdk/nrf52.svd",
+            "svdFile": "${env:ZEPHYR_BASE}/../modules/hal/nordic/nrfx/mdk/nrf52.svd",
         }
     ]
 }

@@ -68,10 +68,11 @@ setting *Send on Enter: CR* in HTERM to function properly).
 	7. test_gpio_int
 	8. test_timed_gpio_int
 	9. test_timer_interrupt
-	10. test_sys_cmds
+	10. test_sys_cmds (with warm reboot)
 	11. test_fs
 	12. fs_format_remount
 	13. print_dir
+	14. clean_dir
 	100. Quit TEST Application
 	Enter Test no:
 

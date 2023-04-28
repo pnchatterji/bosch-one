@@ -37,7 +37,7 @@ static int board_bst_ab3_nrf52840_init(const struct device *dev)
 	return ret; 
 }
 
-#if defined(CONFIG_CONFIG_USB_DEVICE_STACK) && defined(CONFIG_BST_USB_AUTO_START)
+#if defined(CONFIG_USB_DEVICE_STACK) && defined(CONFIG_BST_USB_AUTO_START)
 static int usb_cdc_init(const struct device *dev)
 {
 	int err = usb_enable(NULL);

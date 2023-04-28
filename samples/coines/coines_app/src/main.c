@@ -12,28 +12,27 @@
 #include <dirent.h>
 #include <coines.h>
 
+/*Define the number of buttons available on the test board. Default is 2.
+Setting it larger than 2 is meaningless as 2 is the maximum used in below tests*/
+#ifdef CONFIG_BOARD_BST_AB3_NRF52840
+#define TEST_BOARD_BUTTONS 2
+#elif CONFIG_BOARD_BST_ARDUINO_NICLA
+#define TEST_BOARD_BUTTONS 1
+#else
+#define TEST_BOARD_BUTTONS 2
+#endif
 /*
  * GPIO & LED Test
  */
 int test_gpio_led(void)
 {
 	int cnt =0;
-	int ret =0;
 	bool pb1_pressed = false, pb1_tog = false;
 	bool pb2_pressed = false, pb2_tog = false;
 	bool ledg_tog =false;
 	enum coines_pin_direction pin_dir;
 	enum coines_pin_value pin_val;
 	uint32_t oldms = coines_get_millis();
-	//coines_open_comm_intf() is not called in this test, so leds and buttons have to be configured
-	//explicitely. This also tests the pin config API.
-	ret |= coines_set_pin_config(COINES_APP30_BUTTON_1,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH); 	  
-	ret |= coines_set_pin_config(COINES_APP30_BUTTON_2,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH); 
-	if(ret!=0)
-	{
-		printf("Error setting LED and button pins %d\n",ret);
-		return -1;
-	}
 	printf("Press TB1 and TB2 to toggle Red and Blue LEDs (6 times)\n");
 	coines_set_led(COINES_LED_RED,COINES_LED_STATE_OFF);
 	coines_set_led(COINES_LED_BLUE,COINES_LED_STATE_OFF);
@@ -322,7 +321,7 @@ int test_ble(void)
 	};
     coines_ble_config(&bleconfig);
 	puts("Connect with nrf Toolkit or similar BLE console client.");
-    coines_open_comm_intf(COINES_COMM_INTF_BLE,NULL); //Wait here till BLE/USB is connnected
+    coines_open_comm_intf(COINES_COMM_INTF_BLE,NULL);
 	puts("Enter a text to echo in the BLE console terminated by ENTER,\n it will be echoed back to BLE console and printed here.\n Type quit[ENTER] to stop test");
     while (1)
     {
@@ -359,20 +358,13 @@ int test_ble(void)
 /*
  * USB CDC ACM API test
  */
-bool usb_init_done = false;
+
 int test_usb_cdc(void)
 {
 	uint8_t buffer[100];
 	int len;
-	if(!usb_init_done)
-	{
-		//this function is called in main() in case of interactive test driver
-		//and here in case of non-interactive test driver
-    	coines_open_comm_intf(COINES_COMM_INTF_USB,NULL); //Wait here till console is connnected
-		usb_init_done = true;
-	}
-	puts("Enter a text to echo, type quit to stop test");
 
+	puts("Enter a text to echo, type quit to stop test");
     while (1)
     {
 		len = coines_intf_available(COINES_COMM_INTF_USB);
@@ -387,7 +379,6 @@ int test_usb_cdc(void)
 				break;
 		}
     }
-    coines_close_comm_intf(COINES_COMM_INTF_USB,NULL);
     return 0;	
 }
 /*
@@ -439,9 +430,11 @@ int test_gpio_int()
 	int ncb_1_o=0,ncb_2_o=0;
 	ncb_1=0;ncb_2=0;
 	coines_set_pin_config(COINES_APP30_BUTTON_1,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH); 	  
-	coines_set_pin_config(COINES_APP30_BUTTON_2,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH); 
 	coines_attach_interrupt(COINES_APP30_BUTTON_1,cb_1,COINES_PIN_INTERRUPT_RISING_EDGE);
+#if TEST_BOARD_BUTTONS >= 2
+	coines_set_pin_config(COINES_APP30_BUTTON_2,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH); 
 	coines_attach_interrupt(COINES_APP30_BUTTON_2,cb_2,COINES_PIN_INTERRUPT_FALLING_EDGE);
+#endif
 	puts("Press Button 1 or 2 to trigger interrupts (5 times)");
 	while(1)
 	{
@@ -470,15 +463,18 @@ int test_gpio_int()
  * Timed GPIO Interrupt API Test (using PPI)
  */
 uint64_t ns_p=0;
+uint32_t pin_p=0;
 void cb_3(uint64_t ns,uint32_t pin, uint32_t polarity)
 {
 	ncb_1++;
 	ns_p = ns;
+	pin_p = pin;
 }
 void cb_4(uint64_t ns,uint32_t pin, uint32_t polarity)
 {
 	ncb_2++;
 	ns_p = ns;
+	pin_p = pin;
 }
 
 int test_timed_gpio_int()
@@ -486,12 +482,9 @@ int test_timed_gpio_int()
 	int ncb_1_o=0,ncb_2_o=0;
 	int err1=0,err2=0;
 	ncb_1=0;ncb_2=0;
-	ns_p=0;
-	coines_open_comm_intf(COINES_COMM_INTF_USB,NULL); //Required for starting capture timer
-	coines_set_pin_config(COINES_APP30_BUTTON_1,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH); 	  
+	ns_p=0;	  
 	err1 = coines_attach_timed_interrupt(COINES_APP30_BUTTON_1,cb_3,COINES_PIN_INTERRUPT_RISING_EDGE);
-#ifdef CONFIG_BOARD_BST_AB3_NRF52840
-	coines_set_pin_config(COINES_APP30_BUTTON_2,COINES_PIN_DIRECTION_IN,COINES_PIN_VALUE_HIGH);
+#if TEST_BOARD_BUTTONS >= 2
 	err2 = coines_attach_timed_interrupt(COINES_APP30_BUTTON_2,cb_4,COINES_PIN_INTERRUPT_FALLING_EDGE);	
 #endif
 	if(err1!=0 || err2 != 0)
@@ -504,12 +497,12 @@ int test_timed_gpio_int()
 	{
 		if(ncb_1 != ncb_1_o)
 		{
-			printf("Button 1 pressed at ns %lx%08lx\n",((unsigned long) (ns_p>>32)), ((unsigned long)ns_p));
+			printf("Button 1 pressed at ns %lx%08lx pinid%d \n",((unsigned long) (ns_p>>32)), ((unsigned long)ns_p),pin_p);
 			ncb_1_o = ncb_1;
 		}
 		if(ncb_2 != ncb_2_o)
 		{
-			printf("Button 2 pressed at ns %lx%08lx\n",((unsigned long) (ns_p>>32)), ((unsigned long)ns_p));
+			printf("Button 2 pressed at ns %lx%08lx pinid%d\n",((unsigned long) (ns_p>>32)), ((unsigned long)ns_p),pin_p);
 			ncb_2_o = ncb_2;
 		}
 		if((ncb_1 + ncb_2) >5)
@@ -519,7 +512,7 @@ int test_timed_gpio_int()
 		}
 	}
 	coines_detach_timed_interrupt(COINES_APP30_BUTTON_1);
-#ifdef CONFIG_BOARD_BST_AB3_NRF52840
+#if TEST_BOARD_BUTTONS >= 2
 	coines_detach_timed_interrupt(COINES_APP30_BUTTON_2);
 #endif
 	return 0;
@@ -600,18 +593,19 @@ void fs_format_remount(void)
 {
 	struct fs_mount_t *mp =	&FS_FSTAB_ENTRY(PARTITION_NODE);
 	struct fs_littlefs *fs = mp->fs_data;
-	struct lfs_config cfg ={0};
-	fs->cfg = cfg;
 	int rc = lfs_format(&fs->lfs, &fs->cfg);
 	printf("format done. Ret:%d\n",rc);
 	lfs_mount(&fs->lfs, &fs->cfg);
+	puts("Do warm reboot");
 }
+
 #elif defined(CONFIG_FILE_SYSTEM_FLOGFS)
 #include <fs/flogfs_fs.h>
 void fs_format_remount(void)
 {
 	int rc = flogfs_format_remount);
 	printf("format done. Ret:%d\n",rc);
+	puts("Do warm reboot");
 }
 #else
 void fs_format_remount(void)
@@ -648,6 +642,34 @@ int print_dir(void)
 	(void)fs_closedir(&dir);
 	return rc;
 }
+
+int clean_dir(void)
+{
+	int rc;
+	char fpath[500];
+	fs_dir_t_init(&dir);
+	rc = fs_opendir(&dir, FS_DRIVE);
+
+	while (rc >= 0) {
+
+		rc = fs_readdir(&dir, &ent);
+		if (rc < 0) {
+			break;
+		}
+		if (ent.name[0] == 0) {
+			break;
+		}
+		if(ent.type == FS_DIR_ENTRY_FILE)
+		{
+			sprintf(fpath,"%s/%s",FS_DRIVE,ent.name);
+			fs_unlink(fpath);
+			printf("%s deleted\n",fpath);
+		}
+	}
+	(void)fs_closedir(&dir);
+	return rc;
+}
+
 int print_dir_posix(void)
 {
 	DIR *dp;
@@ -744,11 +766,36 @@ void test_fs()
 	print_dir();
 }
 int shell_main(void);
+
+void wait_loop()
+{
+	int len;
+	char buf[100];
+	puts("Press ENTER to continue");
+		/*wait for user to press something*/
+		while (1)
+		{
+			len = coines_intf_available(COINES_COMM_INTF_USB);
+			if(len >0)
+			{
+				/*reject user input and continue test shell or batch*/
+				coines_read_intf(COINES_COMM_INTF_USB, buf, sizeof(buf));
+				break;
+			}
+			coines_delay_msec(1);
+		}
+}
+
 int main()
 {
-	/*Uncomment to run test-drivers in an interactive console shell.*/
+	/*INTF USB is enabled for all tests (batch or shell), as it is
+	required for console interaction*/
+	coines_open_comm_intf(COINES_COMM_INTF_USB,NULL); 
+	wait_loop();
 
+	/*Uncomment to run test-drivers in an interactive console shell.*/
 	shell_main();
+
 	/*Uncomment one or more tests to run as a batch.*/
 	// test_usb_cdc();			
 	// test_ble();
@@ -773,8 +820,7 @@ int shell_main(void)
 	int tn=0, len=0;
 	char cmd[100];
 
-	coines_open_comm_intf(COINES_COMM_INTF_USB,NULL); //Wait here till console is connnected
-	usb_init_done = true;
+
 	while(1)
 	{
 		puts(
@@ -787,10 +833,11 @@ int shell_main(void)
 			"7. test_gpio_int\n"
 			"8. test_timed_gpio_int\n"
 			"9. test_timer_interrupt\n"
-			"10. test_sys_cmds\n"
+			"10. test_sys_cmds (with warm reboot)\n"
 			"11. test_fs\n"
 			"12. fs_format_remount\n"
 			"13. print_dir\n"
+			"14. clean_dir\n"
 			"100. Quit TEST Application\n"
 			"Enter Test no:"
 			);
@@ -852,6 +899,9 @@ int shell_main(void)
 			case 13:
 				print_dir();
 				break;
+			case 14:
+				clean_dir();
+				break;
 			case 100:
 				puts("Quitting Test app");
 				return 0;
@@ -859,20 +909,7 @@ int shell_main(void)
 				printf("Unknown test number %d\n",tn);
 				break;
 		}
-		puts("Press ENTER to continue");
-		//wait for user to press something
-		while (1)
-		{
-			len = coines_intf_available(COINES_COMM_INTF_USB);
-			if(len >0)
-			{
-				//reject user input and continue test shell
-				coines_read_intf(COINES_COMM_INTF_USB, cmd, sizeof(cmd));
-				break;
-			}
-			coines_delay_msec(1);
-		}
+		 wait_loop();
 	}
-	coines_close_comm_intf(COINES_COMM_INTF_USB,NULL);
 	return 0;
 }

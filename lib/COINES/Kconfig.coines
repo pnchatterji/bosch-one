@@ -15,6 +15,41 @@ config COINES
 	help
 	  Enable COINES on Zephyr library
 
+config COINES_TIMED_INTR_TIMER
+	int "Timer used by COINES Timed Interrupt API"
+	default 3
+	help
+	  Timer used by COINES Timed Interrupt API. It is set by default 
+	  to 3 as TIMER3 in nrf52 has 6 capture channels, and COINES needs
+	  the extra capture channels.
+
+config COINES_TIMED_INTR_ENABLE
+	bool "Enable Timed Interrupt feature in COINES API"
+	default true
+	select NRFX_TIMER3
+	select NRFX_PPI
+	select NRFX_GPIOTE
+	help
+	  Enable Timed Interrupt feature in COINES API. This feature uses
+	  PPI and GPIOTE, which are automatically enabled. It also uses
+	  nrf52 TIMER3 by default. To use a different timer, set 
+	  CONFIG_COINES_TIMED_INTR_TIMER to the reqd value, and enable the
+	  corresponding timer in prj.conf
+
+config COINES_INTF_BLE_ENABLE
+	bool "Enable BLE Interface in COINES"
+	default true
+	help
+	  Enable BLE related features in COINES API such as
+	  NUS, HTS and BAT
+
+config COINES_INTF_USB_ENABLE
+	bool "Enable USB Interface in COINES"
+	default true
+	help
+	  Enable USB interface in COINES to enable communication
+	  with host via USB console terminal
+
 config BT_NUS_THREAD_STACK_SIZE
 	int "Thread stack size"
 	default 1024
