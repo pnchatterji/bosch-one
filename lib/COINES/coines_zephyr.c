@@ -130,6 +130,9 @@ int16_t coines_open_comm_intf(enum coines_comm_intf intf_type, void *arg)
 {
    ARG_UNUSED(arg);
    int  rc = 0;
+   static bool intf_usb_initialized = false;
+   static bool intf_ble_initialized = false;
+
     //initialize LEDs and buttons
 	coines_set_pin_config(COINES_APP30_LED_R,COINES_PIN_DIRECTION_OUT,COINES_PIN_VALUE_LOW);
  	coines_set_pin_config(COINES_APP30_LED_G,COINES_PIN_DIRECTION_OUT,COINES_PIN_VALUE_LOW);
@@ -139,12 +142,20 @@ int16_t coines_open_comm_intf(enum coines_comm_intf intf_type, void *arg)
  
     //enable USB/CDC connection for terminal support
 #ifdef CONFIG_COINES_INTF_USB_ENABLE 
-    usb_cdc_init();
+	if (intf_type == COINES_COMM_INTF_USB && !intf_usb_initialized)
+    {
+        rc = usb_cdc_init();
+        if(rc==0){
+            intf_usb_initialized = true;
+        }
+    }
 #endif
 #ifdef CONFIG_COINES_INTF_BLE_ENABLE 
-	if (intf_type == COINES_COMM_INTF_BLE)
+	if (intf_type == COINES_COMM_INTF_BLE && !intf_ble_initialized)
     {
-        rc |= ble_service_init();
+        rc = ble_service_init();
+        if (rc ==0){
+            intf_ble_initialized = true;}
     }
 #endif    
     //Set Blue LED in case of error, set Red LED always (TBD: Is this required?)
