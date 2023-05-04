@@ -1,0 +1,7 @@
+sample:
+  name: COINES BMI270 Accel Sample
+tests:
+  sample.coines.bmi270.accel:
+    harness: sensor
+    tags: samples coines bmi270
+

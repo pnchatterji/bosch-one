@@ -1,1 +1,2 @@
 rsource "bhy2/Kconfig.bhy2"
+rsource "bmi270/Kconfig.bmi270"

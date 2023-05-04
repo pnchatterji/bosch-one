@@ -6,3 +6,5 @@
 add_subdirectory_ifdef(CONFIG_BOSCH_BHY2 bhy2)
 zephyr_include_directories_ifdef(CONFIG_BOSCH_BHY2 bhy2)
 
+add_subdirectory_ifdef(CONFIG_BOSCH_BMI270 bmi270)
+zephyr_include_directories_ifdef(CONFIG_BOSCH_BMI270 bmi270)
