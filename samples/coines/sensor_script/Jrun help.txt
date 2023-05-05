@@ -1,0 +1,29 @@
+https://wiki.segger.com/J-Run
+
+Microsoft Windows [Version 10.0.19044.1826]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\Users\Pashupati>"C:\Program Files (x86)\SEGGER\JLink\JRun.exe"
+J-Run compiled Nov 16 2021 15:02:50
+(c) 2019-2019 SEGGER Microcontroller GmbH    www.segger.com
+
+Syntax:
+  JRun [option option ...] elf-file
+
+  Option                   Default       Description
+  -device <str>            STM32F407IE   Set device name to str.
+  -if SWD | JTAG           SWD           Select SWD or JTAG as target interface.
+  -speed <kHz>             4000          Set interface speed to n kHz.
+  --rtt                    Auto          Explicitly enable RTT.
+  --nortt                  Auto          Explicitly disable RTT.
+  --semihost               Auto          Explicitly enable semihosting.
+  --nosemihost             Auto          Explicitly disable semihosting.
+  -x str, --exit str       *STOP*        Set exit wildcard to str.
+  --quit                   On            Automatically exit J-Run on application exit.
+  --wait                   Off           Wait for key press on application exit.
+  -2, --stderr             Off           Also send target output to stderr.
+  -s, --silent             Off           Work silently.
+  -v, --verbose            Off           Increase verbosity.
+  --dryrun                 Off           Dry run. Parse elf-file only.
+  --jlinkscriptfile <str>  not set       Set path of J-Link script file to use to str. Further info: wiki.segger.com/J-Link_script_files
+  

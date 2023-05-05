@@ -1,0 +1,7 @@
+sample:
+  name: Scripts to run all Examples of a Sensor using COINES
+tests:
+  sample.coines.sensorscript:
+    harness: sensor
+    tags: samples coines script
+

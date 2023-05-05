@@ -6,7 +6,9 @@ manifest:
       path: bosch-one/sensor-api/bhy2
       revision: v1.5.0
       url: https://github.com/BoschSensortec/BHY2-Sensor-API
-    - name: bmi270
-      path: bosch-one/sensor-api/bmi270
-      revision: v2.71.8
-      url: https://github.com/boschsensortec/BMI270-Sensor-API
+#BMI270 is manually copied into bosch-one at present as Github 
+#currently contains an old version of BMI270 (situation as of May2023)
+#    - name: bmi270
+#      path: bosch-one/sensor-api/bmi270
+#      revision: v2.71.8
+#      url: https://github.com/boschsensortec/BMI270-Sensor-API

@@ -15,5 +15,5 @@ zephyr_library_sources(bmi270.c)
 #for COINES apps, include common from examples as well
 #as these are required by the COINES sensor examples
 
-zephyr_library_sources_ifdef(CONFIG_COINES bmi270_examples/common/common.c)
-zephyr_include_directories_ifdef(CONFIG_COINES bmi270_examples/common)
+zephyr_library_sources_ifdef(CONFIG_COINES examples/bmi270/common/common.c)
+zephyr_include_directories_ifdef(CONFIG_COINES examples/bmi270/common)

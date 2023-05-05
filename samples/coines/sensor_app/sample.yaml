@@ -1,0 +1,7 @@
+sample:
+  name: Generic Sensor Example App using COINES
+tests:
+  sample.coines.sensorapp:
+    harness: sensor
+    tags: samples coines
+
