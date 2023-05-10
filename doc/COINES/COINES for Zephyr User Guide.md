@@ -1,26 +1,18 @@
-![](media/44443d60c87553c9cc7ed80610c95c6a.png)
+# COINES for Zephyr User Manual
 
-COINES for Zephyr
+**Bosch Sensortec GmbH**
 
-User Manual
-
-Bosch Sensortec GmbH
-
-Contents
+## Contents
 
 [Introduction](#introduction)
 
 [Zephyr and nRF Connect SDK Background](#zephyr-and-nrf-connect-sdk-background)
 
-[Installing nRF Connect SDK (and Zephyr)](#installing-nrf-connect-sdk-and-zephyr)
+[Bosch-One Module](#bosch-one-module)
 
-[Installing COINES for Zephyr](#installing-coines-for-zephyr)
-
-[Application Directory Structure](#application-directory-structure)
+[Installing Bosch-One](#installing-bosch-one)
 
 [Building a COINES for Zephyr application](#building-a-coines-for-zephyr-application)
-
-[Setting the Board Root](#setting-the-board-root)
 
 [Create a new Application](#create-a-new-application)
 
@@ -36,9 +28,11 @@ Contents
 
 [Note on Revisions](#note-on-revisions)
 
+[Customization](#customization)
+
 # Introduction
 
-COINES for Zephyr is an implementation of the COINES API on the Zephyr RTOS. Refer the COINES User Manual (Document Number BST-DHW-AN013) for more information about COINES. This document does not provide detailed information about COINES. It only provides the additional information required for using installing and the Zephyr version.
+COINES for Zephyr (aka Z-COINES) is an implementation of the COINES API on the Zephyr RTOS. Refer the COINES User Manual (Document Number BST-DHW-AN013) for more information about COINES. This document does not provide detailed information about COINES. It only provides the additional information required for using installing and using the Zephyr version.
 
 The original COINES library is a bare-metal implementation over the microcontroller SOC. COINES for Zephyr on the other hand is layered on top of the Zephyr RTOS and uses many Zephyr kernel features such as threads, queues etc., as well as the Zephyr communication interface for USB, BLE, I2C, SPI etc.
 
@@ -46,7 +40,7 @@ The advantage of using COINES for Zephyr for a user application is that all of t
 
 # Zephyr and nRF Connect SDK Background
 
-Zephyr is a small, modular RTOS for resource-constrained embedded environments such as IoT. It is open-source, available on Github, and is supported by an active community and a consortium of leading semiconductor manufacturers such as Intel, Nordic, NXP etc.
+Zephyr is a small, modular RTOS for resource-constrained embedded environments such as IoT. It is open-source, available on GitHub, and is supported by an active community and a consortium of leading semiconductor manufacturers such as Intel, Nordic, NXP etc.
 
 The Zephyr documentation is available at this url:
 
@@ -72,122 +66,65 @@ The documentation for nRF Connect SDK, nRF52 Series, Nordic tutorials, blogs and
 
 <https://infocenter.nordicsemi.com/index.jsp>
 
-# Installing nRF Connect SDK (and Zephyr)
+# Bosch-One Module
 
-NOTE: DO NOT install Zephyr as explained in the Zephyr Getting Started web page. Zephyr and all necessary tools like CMake etc. are automatically downloaded and pre-configured as a part of the nRF Connect SDK installation.
+Bosch-One is the Bosch Sensortec External Module for Zephyr. A Zephyr External Module is an external repository that integrates with Zephyr, but is not a part of the Zephyr upstream repository. External repositories are usually located in the parent directory of Zephyr. For example, if Zephyr is installed in */ncs/v2.3.0/zephyr*, Bosch-One is installed in */ncs/v2.3.0/bosch-one*.
 
-In order to install the nRF Connect SDK, it is necessary to first install the nRF Connect for Desktop tool. This is basically an installation manager that makes it easy to install various Nordic tools and packages. The latest version of nRF Connect for Desktop can be downloaded and installed from here:
+Bosch-One contains all the Zephyr-related Bosch Sensortec software infrastructure. This includes COINES for Zephyr (Z-COINES). It also contains libraries, sensor drivers, utility drivers, documents etc. Z-COINES sources are available under */bosch-one/lib/COINES*. Z-COINES samples are available under */bosch-one/samples/coines*
 
-<https://www.nordicsemi.com/Products/Development-tools/nrf-connect-for-desktop>
+# Installing Bosch-One
 
-Once the nRF Connect for Desktop is installed, run it, and install the toolchain manager as explained in this link:
-
-<https://developer.nordicsemi.com/nRF_Connect_SDK/doc/latest/nrf/gs_assistant.html>
-
-This is the nRF Connect for Desktop window. Click on the Install Toolchain Manager button (If it is already installed, it will show an Update button to install a newer version).
-
-![Graphical user interface, application Description automatically generated](media/dbf6dd2642beab2c8e0f8eb4197abca3.png)
-
-The Toolchain Manager will launch in a new window, as below:
-
-![The Toolchain Manager window](media/0844bc34be8b6fa363acffbafca95543.png)
-
-Install the latest version of the nRF Connect SDK (Currently 1.9.1). Once the SDK is installed, an “Open VS Code” and an “Open Segger Embedded Studio” button will appear next to the SDK.
-
-![Graphical user interface, application Description automatically generated](media/a353db3170a079cb2a9e06db2257b1e1.png)
-
-We will use VS Code in this document. Clicking on VS Code will open the VS Code IDE with the NRF Connect plugin installed, if it is already installed on the computer, otherwise it will prompt you to download and install VS Code from:
-
-<https://code.visualstudio.com/download>
-
-# Installing COINES for Zephyr
-
-COINES for Zephyr can be downloaded as a zip file from the Bosch Sensortec website.
+The procedure for installing Bosch-One, along with VS Code, nRF Connect and Zephyr, is explained in a separate document *Installing Bosch-One* which is available on the Bosch Sensortec download page.
 
 <https://www.bosch-sensortec.com/products/downloads/>
 
-It should be unzipped in the user’s Zephyr application directory. In this document, this is assumed to be a directory called “app” in the nRF Connect SDK directory. So, if nRF Connect SDK is installed in \\ncs, the COINES for Zephyr should be unzipped in \\ncs\\app. The diagram in the following section explains the directory structure.
+The above document is also available in the Bosch-One repository in the Bosch Sensortec home page on GitHub:
 
-# Application Directory Structure
+<https://github.com/BoschSensortec>
 
-![](media/2e3093c210a6d62e1d92f0c3b9ea6875.png)
+The following sections assumes that the Bosch-One module is correctly installed on the system along with Zephyr, nrf Connect SDK, VS Code, and nrf Connect plugin for VS Code, as described in the above document. It is also assumed that the paths for nrF Connect SDK and Toolchain are correctly set in the VS Code settings, as described in the above document.
 
-This is the application directory structure that we use for this document. These are some of the key directories:
+## Default Directory Structure
 
-| \\ncs                 | By default, this is the root directory for the nRF Connect SDK                                                                                                                                                                                                        |
-|-----------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| \\ncs\\vx.y.z         | nRF Connect SDK sub directory for version x.y.z (here, 1.9.1)                                                                                                                                                                                                         |
-|                       | The subdirectories nrf and nrfxlib contain the Nordic-specific extension modules to Zephyr                                                                                                                                                                            |
-| \\ncs\\vx.y.z\\zephyr | Root directory of Zephyr, compatible with vx.y.x of nRF Connect SDK                                                                                                                                                                                                   |
-| \\ncs\\app            | Default location of application directory. You can unzip the COINES for Zephyr zip package downloaded from the Bosch Sensortec here                                                                                                                                   |
-|                       |                                                                                                                                                                                                                                                                       |
-|                       | **Subdirectories in COINES for Zephyr package**                                                                                                                                                                                                                       |
-| COINES                | Source code files of COINES for Zephyr. Note that COINES for Zephyr is only delivered in source code form. It has to be included and built with the user applications.                                                                                                |
-| COINES_test           | Sample application / test application for COINES for Zephyr, which exercises the complete COINES API                                                                                                                                                                  |
-| flogfs_fs             | FLOG File System sources, with wrapper files to convert it into a Zephyr compatible file system. These source files also need to be included in user applications that wish to access the external NAND Flash on Bosch Sensortec Application Boards as a file system  |
-| hello_flogfs          | Sample Application / Test Application for demonstrating a Zephyr application that uses FLOG file system. This is a non-COINES application.                                                                                                                            |
-| hello_littlefs        | Sample Application / Test Application for demonstrating a Zephyr application that uses the LittleFS file system. LittleFS is an alternative to FLOG FS, and comes as a part of nRF Connect SDK. This is a non-COINES application.                                     |
-| boards                | Zephyr DTS files for Bosch Sensortec Application Boards. These DTS files are required for building Zephyr applications for Bosch Sensortec Application Boards (COINES and non-COINES)                                                                                 |
-| blinky_world          | A non-COINES sample that combines Blinky and Hello World on Bosch Sensortec Application Board 3.0                                                                                                                                                                     |
-| tmp112                | A non-COINES sample that demonstrates using the on-board temperature sensor of Sensortec Application Board 3.0                                                                                                                                                        |
-| peripheral_uart_hts   | A non-COINES sample that demonstrates USB UART and BLE ACM and BLE services on Bosch Sensortec Application Board 3.0                                                                                                                                                  |
-| ts_radio_hts          | A non-COINES sample that demonstrates using the NRF52 radio-timeslot feature on Bosch Sensortec Application Board 3.0                                                                                                                                                 |
-
+Following is the default directory structure if Bosch-One is installed as per default settings. vx.y.z is the nrf Connect SDK / Bosch-One version number.
+```
+ncs
+├── app                     User Applications (recommended location)
+│   ├── proj1               user application 1
+│   ├── proj2               user application 2
+│   ├── ...
+├── v2.0.3
+│   ├── bosch-one           Bosch-One module
+│   ├── nrf                 Nordic nrf module
+│   ├── nrfxlib             Nordic nrfx module
+│   ├── modules             Other external modules
+│   ├── zephyr              Zephyr root directory
+```
 # Building a COINES for Zephyr application
-
-## Setting the Board Root
-
-Before creating the first COINES for Zephyr application (or even a non-COINES Zephyr Application for a Bosch Sensortec Application Board), it is necessary to make a change to the setting of VS Code (this has to be done only once).
-
-Basically, the Zephyr build system needs to know the location of the Bosch Sensortec Application Board DTS files. By default, the Zephyr build system expects to find all DTS files in the zephyr\\boards folder. Since our DTS files are not (yet) integrated into Zephyr, and are packaged along with the application in what is known in Zephyr terminology as Out-of-Tree configuration, the location of these DTS files has to be explicitly passed on to the build system.
-
-The simplest way to do this is to start VS Code, and then click on the Settings button, and then select the nRF Connect/ Board Roots configuration Item (see diagram)
-
-![Graphical user interface, application Description automatically generated](media/0c69511d048201e9338a8afbac80e2f2.png)
-
-Click on Add Item and browse to the boards folder which is a part of the COINES for Zephyr package. If the package has been installed in the recommended location, this would be \\ncs\\app\\boards
-
-Alternatively, it is also possible to set this path by setting the BOARD_ROOT variable in the CMake file of each application, CMakeLists.txt (see next section).
 
 ## Create a new Application
 
-![Graphical user interface, text, application Description automatically generated](media/55a626a037b159825278a61a87722e42.png)
+<img src="media/zcoines-create-new-app.png" alt="Initial screen for creating new ZCOINES app" title="Initial screen for creating new ZCOINES app" width="50%"/>
 
 1.  Start VS Code.
-2.  Click on the nRF Connect Plugin Button ![](media/009091b9363cf9f73a82367ffbcaf485.png)
+2.  Click on the nRF Connect Plugin Button <img src="media/zcoines-nrf-button.png" width="15"/>
 3.  Click on the “Create a new application” in the Welcome menu of nRF Connect Plugin.
 
-![Graphical user interface, application Description automatically generated](media/a63b260a43c2c0b692872f9ed2d1586e.png)
+<img src="media/zcoines-new-app-dialog.png" alt="Create New App dialog box" title="Create New App dialog box" width="70%"/>
 
 In the New Application window, make following settings:
 
 1.  Select Freestanding application
-2.  Verify location of nRF Connect SDK is correct, as previously installed
-3.  Verify location of toolchain
-4.  Select application location as \\ncs\\app (i.e. where the COINES for Zephyr package was unzipped. It is assumed that this has been done in a folder called app in the nRF Connect SDK folder. This is the setup being followed in this document. If you prefer to do it in some other location, please make necessary modifications.
-5.  Select a Zephyr sample to act as a template for the new project. The Zephyr Hello World sample is default, and is adequate for a simple application.
-6.  Enter the application name. Here we use “MyNewCOINESApp”
+2.  Verify location of nRF Connect SDK, as installed in previous step
+3.  Verify location of toolchain, as installed in previous step
+4.  Select an appropriate application location. By convention, it should be in a parent directory of bosch-one. In this document, the application directory is presumed to be *ncs/app*, as shown in the previous section.
+5.  Select a Z-COINES sample to act as a template for the new project. The *coines_app* sample is a good starting point for general-purpose COINES applications. One of the COINES sensor samples is a good starting point for sensor applications.
+6.  Enter the application name. Here we use "my_coines_app”
 7.  Click on Create Application. A new application is created, as follows:
 
-![Graphical user interface, text, application Description automatically generated](media/3df8fa767670adec793f0769795b4c3f.png)
+<img src="media/zcoines-new-app-created.png" alt="New app created in VS Code" title="New app created in VS Code" width="80%"/>
 
-Make the following changes to *main.c*, to create a simple COINES application:
-
-![Graphical user interface, text, application Description automatically generated](media/5ec1190e059561f52d494c37942b4b69.png)
-
-Make the following changes to *CMakeLists.txt*, in the project root folder
-
-![](media/eafae022ffa7788441fa0afeca43e8cf.png)
-
-The main change is that the COINES CMake file is included in the project. This pulls in all the settings required for COINES.
-
-NOTE2: in the above CMakelists.txt, it is assumed that the COINES folder is alongside the application project folder in the app directory. If this is not the case, the path has to be appropriately modified.
-
-Modify the *KConfig* file as follows (this pulls in the COINES config variable definitions):
-
-![Graphical user interface, text, application, chat or text message Description automatically generated](media/c518aefd02817f14b355e3f16b9c3de2.png)
-
-NOTE: in the above *Kconfig*, it is assumed that the COINES folder is alongside the application project folder in the app directory. If this is not the case, the paths in the above rsource commands has to be appropriately modified.
+If *coines_app* has been used as a template, the newly created app already has a number of functions in *main.c* to demonstrate the use of different parts of the COINES API such as GPIO, SPI, I2C etc. It is sufficient to build this app and run it as explained in the next section in order to experiment with the basic features of COINES and the Bosch Sensortec application boards. These functions can also form the basis of your own COINES application.
 
 ## Create a Build Configuration
 
@@ -195,70 +132,87 @@ The final step before building the new application is to create a build configur
 
 In the menu of the nRF Connect plugin, under the project, click on the “Add Build Configuration” button next to the project name, or on the highlighted text in the below screenshot:
 
-![Graphical user interface, application Description automatically generated](media/39135e971706175287e75755ff0f537d.png)
+<img src="media/zcoines-new-build-config-button.png" alt="New Build Configuration button" title="New Build Configuration button" width="300"/>
 
 The Build Configuration window will open.
 
-**Example1 (for Application Board 3):** Click on “Custom boards”, and select an appropriate custom board from the drop-down list. For example, for **Bosch Sensortec Application Board 3.0**, the corresponding board definition is **bst_ab3_nrf52840.**
+Click on “Custom boards”, and select a custom board supported by Bosch-One from the drop-down list.
 
-![Graphical user interface, text, application Description automatically generated](media/8059031297d7a9677a20bfb65715efd3.png)
+For example:
+- **bst_ab3_nrf52840** for **Bosch Sensortec Application Board 3.0**
+- **bst_arduino_nicla** for **Arduino Nicla Sense ME**
+
+<img src="media/zcoines-add-build-config-dialog.png" alt="Add build config dialog" title="Add build config dialog" width="500"/>
 
 Click on “Enable debug options” to add debug information to the generated output (required for using debugger).
 
 Click on Build Configuration to generate the necessary build files.
 
-**TROUBLESHOOTING**: the list of custom boards is taken from the BOARD_ROOT global variable which was set in STEP 1 of this procedure. If you do not see any custom boards, there could be an error in setting the BOARD_ROOT variable. Please cross-check if the path to the Bosch Sensortec Board definition files (DTS files) is set properly in BOARD_ROOT. You may need to restart VS Code after making any changes to BOARD_ROOT.
+**TROUBLESHOOTING**: the list of custom boards is taken from the board definitions available in *bosch-one/boards*. If you do not see any custom boards, it could be due to the fact that Bosch-One is not properly installed. You can try reinstalling Bosch-One. Otherwise, a workaround is to directly set the BOARD_ROOT global CMake variable, as explained in the Bosch-One installation guide.
+This is the procedure:
+- Click on the *VS Code* Settings Icon at the bottom-Left of the window
+- In the search box, enter *nrf-connect.boardRoots*
+- Click on *Add Item*, and enter the following text: *${config:nrf-connect.topdir}/bosch-one/*
 
-**TIP:**
-
-It is also possible to directly set the BOARD_ROOT variable and even the BOARD variable in the CMakeListes.txt file.
-
-![Graphical user interface, text, application, chat or text message Description automatically generated](media/6ca460779ce043c4df13447641c002d1.png)
-
-However, this is NOT RECOMMENDED, as it would make the project dependent on this one board, and this line would have to be edited manually if you wish to build for another target at a later date. In case of the previously discussed procedure, you can add multiple build configurations to project in VS Code, and build for one or more boards simultaneously.
-
-Once the build configuration is done, it will appear under the project in the nRF Connect SDK menu. The “Add new Build Configuration” can be clicked to add further build configurations, e.g. for other target boards.
-
-**Example2 (for NICLA):**
-
-For the NICLA board, there is already a DTS definition in V2.0.1 and higher versions of nrfConnect/Zephyr. So, select “Nordic Boards” in the previous build configuration dialog, and select the board arduino_nicla_sense_me. The rest of the steps are the same.
-
-Note that there is a COINES specific overlay for this board, which is available in the abovementioned boards directory. However, it is automatically loaded when you select arduino_nicla_sense_me and the BOARDS_ROOT is correctly set. So no specific action is required from the user.
-
-![Graphical user interface, application Description automatically generated](media/74c88ad7b9dcebdc6d5f875fcb3052df.png)
+<img src="media/zcoines-board-root-settings.png" alt="Setting BOARD_ROOT" title="Setting BOARD_ROOT" width="800"/>
 
 ## Build the Application
 
-To build the application, click on the Build option in the nRF Connect menu.
+After clicking on the *Build Configuration* button in the Build Configuration window, the build is launched. If it is successful, the build configuration will appear under the project in the nRF Connect SDK menu. The “Add new Build Configuration” can be clicked to add further build configurations, e.g. for other target boards.
 
-![Graphical user interface, application Description automatically generated](media/a906067a5bd7a2253eb6d32c883cef17.png)
+<img src="media/zcoines-build-button.png" alt="Build Button" title="Build Button" width="300"/>
 
-TIP: In order to do a pristine build (delete all previous output files and rebuild all), hover the mouse on the build option until the circular arrow appears (see the screenshot above), and click on the circular arrow.
+To re-build a configuration e.g. after code changes, click on the desired build configuration to activate it (the active configuration is marked blue), and click on the build button in the left pane as shown in above screen shot.
 
-## Run the Application
+*TIP:* In order to do a pristine build (delete all previous output files and rebuild all), hover the mouse on the build option until the circular arrow appears (see the screenshot above), and click on the circular arrow.
 
-![](media/bc7db718eb50749269333157110672eb.jpeg)
+# Run the Application
+## Run the Application (for Application Board 3.0)
+
+<img src="media/zcoines-ab3-segger-connection.jpeg" alt="AB3 Segger Connection" title="AB3 Segger Connection" width="500"/>
 
 To flash and run the application on Application Board 3.0, connect a Segger J-Link debug probe to the board, as shown in the above picture, and connect the probe to the PC. When the probe is connected, the board should appear in the nRF Connect Menu under the Connected Devices menu.
 
-![Graphical user interface, text, application Description automatically generated](media/d56024bf3f8c76242592877cd78e5d17.png)
+<img src="media/zcoines-debug-button.png" alt="Debug Button" title="Debug Button" width="300"/>
 
 Click on Debug to flash and run the application on the board.
 
-![Text Description automatically generated](media/b2078af8ce761c6d707add9e3baea45a.png)
+<img src="media/zcoines-debug-window.png" alt="Debug Window" title="Debug Window" width="500"/>
 
-Click on the arrow button on the debugger toolbar to run the application. The green LED on the Application Board 3.0 should begin flashing.
+Click on the arrow button on the debugger toolbar to run the application. 
 
-![](media/7c592883b2dbd0eb8f55bb6194419f9a.gif)
+To view the console output from the program,  run a suitable USB console app such as HTERM.
+
+<img src="media/zcoines-console-window.png" alt="Console Window" title="Console Window" width="800"/>
+
+Ensure that the HTERM settings match the ones in the above screenshot, specifically the highlighted settings. In case the *coines_app* sample has been flashed, and the default *shell_main()* demo function is activated, the above menu output will appear in the console after ENTER is pressed in the *Input Control* pane of HTERM. Note that initially there will be no output in the console, as the *coines_app* sample program waits for an ENTER to be pressed in the console.
+
+Once the above menu appears, a number corresponding to a test number can be entered in HTERM to run a particular test. The display prompts in the console window guide the user for each test.
+
+## Run the Application (for Nicla Sense ME)
+
+<img src="media/zcoines-nicla-connection.jpg" alt="Nicla Connection" title="Nicla Connection" width="500"/>
+
+In case of the Arduino Nicla Sense ME board, the board is connected directly to the PC via USB for debugging. It has an on-board debugger. It is neither possible nor required to use Segger J-Link debug probe.
+
+Also in case of Nicla, it is necessary to have a file called *launch.json* in a directory called *.vscode* in the project root directory. This file is already present in the template sample *coines_app*, and in various other Bosch-One samples that are valid for Nicla. In case it is absent, it can be copied from one of the Bosch-One samples, otherwise it can be created from scratch based on the details provided in the Bosch-One Installation Guide.
+
+For Nicla, it is not possible to use the Debug button of the nrf Connect plugin, as it assumes the presence of Segger Jlink. Instead, it is necessary to use the native debug window of VS Code
+
+<img src="media/zcoines-nicla-debug.png" alt="Nicla Debug" title="Nicla Debug" width="500"/>
+
+Click on the "bug" icon in the left control bar to switch to the native debug window on VS Code. In the top combo box, select the Nicla app that has been built, and click on the go arrow to launch the debugger. 
+
+The rest of the details are the same as that for Application Board 3.0
 
 # Further Enhancements
 
-1.  The project COINES_Test can be studied to see how the rest of the COINES API is used, and it can be used to enhance this simple application.
-2.  The Zephyr user guide can be studied, as well as the various samples in Zephyr/samples, and these can be used to extend the application with Zephyr features like threads, queues etc., which is the main benefit of using COINES for Zephyr as opposed to plain-vanilla COINES.
+1.  The various demo functions in *coines_app* can be studied to see how the COINES API is used, and it can be used to create more complex COINES applications.
+2.  The Zephyr user guide can be studied, as well as the various samples in Zephyr/samples, and these can be used to extend the application with Zephyr features like threads, queues etc., which is the main benefit of using COINES for Zephyr as opposed to bare-metal COINES.
 
 # Deviations from Standard COINES
 
-An attempt has been made to implement COINES for Zephyr as a 1:1 replacement for standard COINES. However, it has been necessary to take the following deviations:
+An attempt has been made to implement COINES for Zephyr as a 1:1 replacement for standard bare-metal COINES. However, it has been necessary to take the following deviations:
 
 1.  BLE transmission power cannot be set by the API *coines_ble_config()*. The tx_power element of the config structure is ignored. Instead, the transmission power has to be set by setting one of the CONFIG_BT_CTLR_TX_PWR_\* configuration variables to “y” in *conf.prj*
 
@@ -277,7 +231,7 @@ An attempt has been made to implement COINES for Zephyr as a 1:1 replacement for
 
 When creating a build configuration for the application (see previous section, “create a build configuration”), it is possible to select a so-called board-revision.
 
-![](media/0b632b83c9fbd4d2d7488c4a62556da6.png)
+<img src="media/zcoines-ab3-revisions.png" alt="AB3 Revisions" title="AB3 Revisions" width="500"/>
 
 There are multiple alternative overlay DTS files for AB3.0 for different project configurations. Each alternative allocates the I2C and SPI modules for the shuttle board ports in a different way (in terms of pin allocation). Each overlay corresponds to a so-called "revision number". The project should be built with the revision number that corresponds to its configuration. Note that "Revision" here actually means "alternative configuration" as per the terminology used in the Zephyr Build System
 
@@ -291,3 +245,9 @@ There are multiple alternative overlay DTS files for AB3.0 for different project
 Revision 1 is used by default if no revision is selected in the build. In this configuration the primary port of the shuttle can be either I2C or SPI. The application code can decide at runtime which port is to be used (note that both cannot be used simultaneously, due to the design of the sensors. This is compatible with applications written for V2.6 and older of COINES. The downside of this configuration is that the so-called "auxiliary ports" are not available (i.e., the OIS interface or external temp sensor on some shuttle boards.)
 
 Configurations 2, 3 and 4 are useful if access to the auxiliary ports is required. These are accessed by using the COINES_SPI_BUS_1 and COINES_I2C_BUS_1 as first argument to the COINES I2C and SPI API. using these arguments results in a runtime error in the default configuration, or in a configuration where one or the other is not supported.
+
+# Customization
+
+The *coines_app* sample comes with a *prj.conf* Zephyr project customization file that is suitable for most Z-COINES applications. It is possible to customize this file as per project requirements. For example, one can switch off the BLE or USB stacks if not required, thereby reducing image size and improving runtime performance. One can modify the BLE advertising power, the default BLE device name etc.
+
+The *prj.conf* file is liberally commented to guide the user in doing such customizations. It is necessary to do a pristine build of the application after modifying the configuration file.
