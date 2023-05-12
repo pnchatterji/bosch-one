@@ -8,9 +8,9 @@
 
 [Zephyr and nRF Connect SDK Background](#zephyr-and-nrf-connect-sdk-background)
 
-[Bosch-One Module](#bosch-one-module)
+[Bosch One Module](#bosch-one-module)
 
-[Installing Bosch-One](#installing-bosch-one)
+[Installing Bosch One](#installing-bosch-one)
 
 [Building a COINES for Zephyr application](#building-a-coines-for-zephyr-application)
 
@@ -66,15 +66,15 @@ The documentation for nRF Connect SDK, nRF52 Series, Nordic tutorials, blogs and
 
 <https://infocenter.nordicsemi.com/index.jsp>
 
-# Bosch-One Module
+# Bosch One Module
 
-Bosch-One is the Bosch Sensortec External Module for Zephyr. A Zephyr External Module is an external repository that integrates with Zephyr, but is not a part of the Zephyr upstream repository. External repositories are usually located in the parent directory of Zephyr. For example, if Zephyr is installed in */ncs/v2.3.0/zephyr*, Bosch-One is installed in */ncs/v2.3.0/bosch-one*.
+Bosch One is the Bosch Sensortec External Module for Zephyr. A Zephyr External Module is an external repository that integrates with Zephyr, but is not a part of the Zephyr upstream repository. External repositories are usually located in the parent directory of Zephyr. For example, if Zephyr is installed in */ncs/v2.3.0/zephyr*, Bosch-One is installed in */ncs/v2.3.0/bosch-one*.
 
-Bosch-One contains all the Zephyr-related Bosch Sensortec software infrastructure. This includes COINES for Zephyr (Z-COINES). It also contains libraries, sensor drivers, utility drivers, documents etc. Z-COINES sources are available under */bosch-one/lib/COINES*. Z-COINES samples are available under */bosch-one/samples/coines*
+Bosch One contains all the Zephyr-related Bosch Sensortec software infrastructure. This includes COINES for Zephyr (Z-COINES). It also contains libraries, sensor drivers, utility drivers, documents etc. Z-COINES sources are available under */bosch-one/lib/COINES*. Z-COINES samples are available under */bosch-one/samples/coines*
 
-# Installing Bosch-One
+# Installing Bosch One
 
-The procedure for installing Bosch-One, along with VS Code, nRF Connect and Zephyr, is explained in a separate document *Installing Bosch-One* which is available on the Bosch Sensortec download page.
+The procedure for installing Bosch One, along with VS Code, nRF Connect and Zephyr, is explained in a separate document *Bosch One Installation Guide* which is available on the Bosch Sensortec download page.
 
 <https://www.bosch-sensortec.com/products/downloads/>
 
@@ -86,7 +86,7 @@ The following sections assumes that the Bosch-One module is correctly installed 
 
 ## Default Directory Structure
 
-Following is the default directory structure if Bosch-One is installed as per default settings. vx.y.z is the nrf Connect SDK / Bosch-One version number.
+Following is the default directory structure if Bosch One is installed as per default settings. vx.y.z is the nrf Connect SDK / Bosch-One version number.
 ```
 ncs
 ├── app                     User Applications (recommended location)
@@ -94,7 +94,7 @@ ncs
 │   ├── proj2               user application 2
 │   ├── ...
 ├── v2.0.3
-│   ├── bosch-one           Bosch-One module
+│   ├── bosch-one           Bosch One module
 │   ├── nrf                 Nordic nrf module
 │   ├── nrfxlib             Nordic nrfx module
 │   ├── modules             Other external modules
@@ -136,7 +136,7 @@ In the menu of the nRF Connect plugin, under the project, click on the “Add Bu
 
 The Build Configuration window will open.
 
-Click on “Custom boards”, and select a custom board supported by Bosch-One from the drop-down list.
+Click on “Custom boards”, and select a custom board supported by Bosch One from the drop-down list.
 
 For example:
 - **bst_ab3_nrf52840** for **Bosch Sensortec Application Board 3.0**
@@ -148,7 +148,7 @@ Click on “Enable debug options” to add debug information to the generated ou
 
 Click on Build Configuration to generate the necessary build files.
 
-**TROUBLESHOOTING**: the list of custom boards is taken from the board definitions available in *bosch-one/boards*. If you do not see any custom boards, it could be due to the fact that Bosch-One is not properly installed. You can try reinstalling Bosch-One. Otherwise, a workaround is to directly set the BOARD_ROOT global CMake variable, as explained in the Bosch-One installation guide.
+**TROUBLESHOOTING**: the list of custom boards is taken from the board definitions available in *bosch-one/boards*. If you do not see any custom boards, it could be due to the fact that Bosch One is not properly installed. You can try reinstalling Bosch One. Otherwise, a workaround is to directly set the BOARD_ROOT global CMake variable, as explained in the Bosch One Installation Guide.
 This is the procedure:
 - Click on the *VS Code* Settings Icon at the bottom-Left of the window
 - In the search box, enter *nrf-connect.boardRoots*
@@ -195,7 +195,7 @@ Once the above menu appears, a number corresponding to a test number can be ente
 
 In case of the Arduino Nicla Sense ME board, the board is connected directly to the PC via USB for debugging. It has an on-board debugger. It is neither possible nor required to use Segger J-Link debug probe.
 
-Also in case of Nicla, it is necessary to have a file called *launch.json* in a directory called *.vscode* in the project root directory. This file is already present in the template sample *coines_app*, and in various other Bosch-One samples that are valid for Nicla. In case it is absent, it can be copied from one of the Bosch-One samples, otherwise it can be created from scratch based on the details provided in the Bosch-One Installation Guide.
+Also in case of Nicla, it is necessary to have a file called *launch.json* in a directory called *.vscode* in the project root directory. This file is already present in the template sample *coines_app*, and in various other Bosch One samples that are valid for Nicla. In case it is absent, it can be copied from one of the Bosch-One samples, otherwise it can be created from scratch based on the details provided in the Bosch-One Installation Guide.
 
 For Nicla, it is not possible to use the Debug button of the nrf Connect plugin, as it assumes the presence of Segger Jlink. Instead, it is necessary to use the native debug window of VS Code
 
