@@ -234,7 +234,7 @@ bool coines_intf_connected(enum coines_comm_intf intf)
     }
 #endif
 #ifdef CONFIG_COINES_INTF_USB_ENABLE 
-    if (COINES_COMM_INTF_USB)
+    if (intf == COINES_COMM_INTF_USB)
     {
         return usb_cdc_connected();
     }

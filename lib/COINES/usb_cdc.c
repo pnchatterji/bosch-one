@@ -19,7 +19,8 @@
 #include "common_services.h"
 #include <zephyr/sys/ring_buffer.h>
 LOG_MODULE_REGISTER(usb_cdc_bst, LOG_LEVEL_INF);
-#define RING_BUF_SIZE 1024
+#define TEMP_BUF_SIZE 64
+#define RING_BUF_SIZE CONFIG_USB_CDC_ACM_RINGBUF_SIZE
 uint8_t ring_buffer_rx[RING_BUF_SIZE];
 uint8_t ring_buffer_tx[RING_BUF_SIZE];
 
@@ -39,7 +40,7 @@ static void interrupt_handler(const struct device *dev, void *user_data)
 	while (uart_irq_update(dev) && uart_irq_is_pending(dev)) {
 		if (uart_irq_rx_ready(dev)) {
 			int recv_len, rb_len;
-			uint8_t buffer[64];
+			uint8_t buffer[TEMP_BUF_SIZE];
 			size_t len = MIN(ring_buf_space_get(&ringbufrx),
 					 sizeof(buffer));
 
@@ -61,7 +62,7 @@ static void interrupt_handler(const struct device *dev, void *user_data)
 		}
 
 		if (uart_irq_tx_ready(dev)) {
-			uint8_t buffer[64];
+			uint8_t buffer[TEMP_BUF_SIZE];
 			int rb_len, send_len;
 
 			rb_len = ring_buf_get(&ringbuftx, buffer, sizeof(buffer));
@@ -137,9 +138,18 @@ uint16_t usb_cdc_read(void *buffer, uint16_t len)
 {
 	return ring_buf_get(&ringbufrx, buffer, len);
 }
+
 int usb_cdc_write(uint8_t *data,int len)
 {
-	return ring_buf_put(&ringbuftx, data, len);
+	const struct device *dev;
+	dev = DEVICE_DT_GET(DT_NODELABEL(uart_dev));
+	if (!device_is_ready(dev)) {
+		LOG_ERR("UART device not ready");
+		return -EIO;
+	}
+	int write_bytes = ring_buf_put(&ringbuftx, data, len);
+	uart_irq_tx_enable(dev);
+	return write_bytes;
 }
 
 bool usb_cdc_connected()
