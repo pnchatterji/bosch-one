@@ -1,0 +1,7 @@
+sample:
+  name: COINES Bridge Firmware
+tests:
+  sample.coines.coinesbridgefw:
+    harness: sensor
+    tags: samples coines
+

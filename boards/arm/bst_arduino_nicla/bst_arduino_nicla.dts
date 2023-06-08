@@ -177,7 +177,23 @@
 			
 		};
 	};
-	
+	/*Simulated shuttle eeprom of BHI260 shuttle board.*/
+	sprom: shuttle_prom {
+		compatible = "dummy-eeprom";
+		status = "okay";
+		/*pre-programmed shuttle eeprom data. Contains shuttle ID for BHI260 
+		shuttle board at offset 0x01 (0x159 => [01][89] in small endian order)
+		Size is kept same as EEPROM on AB3.0 i.e. 112 bytes(8x2x7)*/
+		  	eeprom-data = <
+			    0 89 01 0 0 0 0 0  0 0 0 0 0 0 0 0 
+				0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 
+				0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 
+				0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 
+				0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 
+				0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 
+				0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 
+			>;
+	};
 };
 
 &adc {

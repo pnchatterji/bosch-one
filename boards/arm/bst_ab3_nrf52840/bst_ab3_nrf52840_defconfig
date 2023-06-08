@@ -8,7 +8,12 @@
 CONFIG_SOC_SERIES_NRF52X=y
 CONFIG_SOC_NRF52840_QIAA=y
 CONFIG_BOARD_BST_AB3_NRF52840=y
- 
+
+#Information returned by coines_get_board_info() for AB3.0
+CONFIG_COINES_BOARD_ID=5
+CONFIG_COINES_HW_ID=17
+CONFIG_COINES_SW_ID=16
+
 # Enable MPU
 CONFIG_ARM_MPU=y
  
@@ -43,8 +48,13 @@ CONFIG_USB_DEVICE_PID=0xAB3C
 #enable auto launch of USB driver, so that console is available by default
 CONFIG_BST_USB_AUTO_START=y
  
-# Disable the UARTE0 enabled in default project configuration
+#Disable the UARTE0 in default project configuration
+#URTE1 was enabled for EEPROM reading via serial-w1 1-wire driver
+#not reqd now
 CONFIG_NRFX_UARTE0=n
+#CONFIG_NRFX_UARTE1=y
+#CONFIG_UART_NRFX=y
+CONFIG_NRFX_UARTE1=n
 CONFIG_UART_NRFX=n
  
 # additional board options
@@ -53,3 +63,10 @@ CONFIG_GPIO_AS_PINRESET=n
 CONFIG_UART_INTERRUPT_DRIVEN=y
 #enable the pinctrl drivers for spi,i2c etc 
 CONFIG_PINCTRL=y
+
+#The 1-Wire driver for Shuttle PROM uses NRFX Timer 1 by default
+#on AB3. To change the timer, modify the w1 node in board DTS or in 
+#a DTS overlay, and enable the new timer
+#dynamic interrupts are also required by the 1-wire driver
+CONFIG_NRFX_TIMER1=y
+CONFIG_DYNAMIC_INTERRUPTS=y

@@ -1,4 +1,4 @@
-description: TI BQ25120 Battery Manageer
+description: TI BQ25120 Battery Manager
 
 compatible: "ti,bq25120"
 

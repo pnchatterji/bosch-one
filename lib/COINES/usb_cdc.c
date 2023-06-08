@@ -20,7 +20,15 @@
 #include <zephyr/sys/ring_buffer.h>
 LOG_MODULE_REGISTER(usb_cdc_bst, LOG_LEVEL_INF);
 #define TEMP_BUF_SIZE 64
-#define RING_BUF_SIZE CONFIG_USB_CDC_ACM_RINGBUF_SIZE
+/*The ring buffer has to be set to at least 2176 for coines bridge
+firmware. CONFIG_USB_CDC_ACM_RINGBUF_SIZE should also be set to same
+or higher in board DTS, if USB_CDC_ACM is being used for comm*/
+#if defined(CONFIG_USB_CDC_ACM)
+	#define RING_BUF_SIZE CONFIG_USB_CDC_ACM_RINGBUF_SIZE
+#else
+	#define RING_BUF_SIZE 2176
+#endif
+
 uint8_t ring_buffer_rx[RING_BUF_SIZE];
 uint8_t ring_buffer_tx[RING_BUF_SIZE];
 
@@ -176,7 +184,10 @@ complications with async method
 
 int usb_cdc_write(uint8_t *data,int len)
 {
-	return write(1,data,len);
+	const struct device *dev = DEVICE_DT_GET(DT_NODELABEL(uart_dev));
+	for(int i = 0;i<len;i++)
+		uart_poll_out(dev,data[i]);
+	return 0;
 }
 
 int usb_cdc_init(void)

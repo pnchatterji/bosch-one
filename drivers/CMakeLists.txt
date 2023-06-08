@@ -7,4 +7,5 @@ add_subdirectory_ifdef(CONFIG_SENSOR temp)
 add_subdirectory_ifdef(CONFIG_FLASH_HAS_DRIVER_ENABLED flash)
 add_subdirectory_ifdef(CONFIG_BATTERY_SENSE  bat)
 add_subdirectory_ifdef(CONFIG_LED  led)
-
+add_subdirectory_ifdef(CONFIG_EEPROM  eeprom)
+add_subdirectory_ifdef(CONFIG_W1  w1)

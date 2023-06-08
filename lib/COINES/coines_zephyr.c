@@ -31,6 +31,7 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/led.h>
 #include <zephyr/drivers/sensor.h>
+#include <zephyr/drivers/eeprom.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/arch/cpu.h>
 #include <zephyr/logging/log_ctrl.h>
@@ -130,8 +131,6 @@ int16_t coines_open_comm_intf(enum coines_comm_intf intf_type, void *arg)
 {
    ARG_UNUSED(arg);
    int  rc = 0;
-   static bool intf_usb_initialized = false;
-   static bool intf_ble_initialized = false;
 
     //initialize LEDs and buttons
 	coines_set_pin_config(COINES_APP30_LED_R,COINES_PIN_DIRECTION_OUT,COINES_PIN_VALUE_LOW);
@@ -142,20 +141,25 @@ int16_t coines_open_comm_intf(enum coines_comm_intf intf_type, void *arg)
  
     //enable USB/CDC connection for terminal support
 #ifdef CONFIG_COINES_INTF_USB_ENABLE 
-	if (intf_type == COINES_COMM_INTF_USB && !intf_usb_initialized)
-    {
-        rc = usb_cdc_init();
-        if(rc==0){
-            intf_usb_initialized = true;
+	if (intf_type == COINES_COMM_INTF_USB){
+       static bool intf_usb_initialized = false;
+        if (!intf_usb_initialized){
+            rc = usb_cdc_init();
+            if(rc==0){
+                intf_usb_initialized = true;
+            }
         }
     }
 #endif
 #ifdef CONFIG_COINES_INTF_BLE_ENABLE 
-	if (intf_type == COINES_COMM_INTF_BLE && !intf_ble_initialized)
-    {
-        rc = ble_service_init();
-        if (rc ==0){
-            intf_ble_initialized = true;}
+	if (intf_type == COINES_COMM_INTF_BLE)    {
+        static bool intf_ble_initialized = false;
+        if(!intf_ble_initialized)        {
+                rc = ble_service_init();
+                if (rc ==0){
+                    intf_ble_initialized = true;
+                }
+        }
     }
 #endif    
     //Set Blue LED in case of error, set Red LED always (TBD: Is this required?)
@@ -311,7 +315,7 @@ void coines_flush_intf(enum coines_comm_intf intf)
     }
 #endif
 #ifdef CONFIG_COINES_INTF_BLE_ENABLE 
-    else if (intf == COINES_COMM_INTF_BLE)
+    if (intf == COINES_COMM_INTF_BLE)
     {
          /* Do nothing */
          //currently, this function is used in non-Zephyr COINES for flushing NUS if accessed
@@ -1461,13 +1465,22 @@ void coines_detach_interrupt(enum coines_multi_io_pin pin_number)
  */
 static uint16_t get_shuttle_id()
 {
-    //TODO: Implement Zephyr EEPROM driver for DS208E05 
-    //so that shuttle ID can be read from shuttle EEPROM.
-    //Right now, 0xFFFF is returned as a temporary workaround
-    uint16_t shuttle_id = 0xFFFF;
-    /* NRFX_IRQ_DISABLE(USBD_IRQn);
-    (void)app30_eeprom_read(0x01, (uint8_t *)&shuttle_id, 2);
-    NRFX_IRQ_ENABLE(USBD_IRQn);*/
+    uint16_t shuttle_id = 0;
+#ifdef CONFIG_EEPROM
+    int rc=0;
+	const struct device *dev = DEVICE_DT_GET(DT_NODELABEL(sprom));
+
+	if (!device_is_ready(dev)) {
+		LOG_ERR("Shuttle PROM not ready\n");
+        return 0xFF;
+	}
+
+	rc = eeprom_read(dev, 0x01, &shuttle_id,2);
+    if (rc < 0) {
+        LOG_ERR("Couldn't read Shuttle PROM. Err: %d.\n", rc);
+        return 0xFF;
+    }
+#endif
     return shuttle_id;
 }
 
@@ -1480,10 +1493,10 @@ int16_t coines_get_board_info(struct coines_board_info *data)
 
     if (data != NULL)
     {
-        data->board = 5;
-        data->hardware_id = 0x11;
+        data->board = CONFIG_COINES_BOARD_ID;
+        data->hardware_id = CONFIG_COINES_HW_ID;
         data->shuttle_id = get_shuttle_id();
-        data->software_id = 0x10;
+        data->software_id = CONFIG_COINES_SW_ID;
         return COINES_SUCCESS;
     }
     else
@@ -1522,7 +1535,12 @@ const char* coines_get_version()
 #define  APP_RESET_HANDLER_ADDR  (*(uint32_t *)(APP_START_ADDR + 4))
 void coines_soft_reset(void)
 {
-#ifndef COINES_AUTO_TEST //Disabled in case of automated testing, as it interferes with it
+#ifdef COINES_AUTO_TEST
+    k_timer_stop(&t_test_tout);
+	puts("Ending Auto Test");
+    puts("TEST STOP");
+#else
+//	puts("coines_soft_reset2");
     //TODO: below operation is done in the baremetal version of COINES. It is required for
     //the bootloader. To check if this is required in ZCOINES or if it
     //needs to be removed or modified. This address seems to be in an unused 

@@ -221,6 +221,18 @@
 			label = "Shuttle PROM RW";
 		};
 	};
+
+	/*1-wire eeprom on shuttle board connected to P0.5 */
+	w1_sprom: w1{
+		compatible = "w1-bbash";
+		status = "okay";
+		w1-gpios   = <&gpio0 5 GPIO_ACTIVE_HIGH>;
+		nrf_timer_num = <1>;
+		sprom: shuttle_prom {
+			compatible = "maxim,ds28e05";
+			status = "okay";
+		};
+	};
 };
 
 &gpiote {

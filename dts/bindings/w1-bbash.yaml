@@ -1,0 +1,20 @@
+# Copyright (c) 2023 2023 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+description: |
+    W1 Bit-bashing driver
+
+compatible: "w1-bbash"
+
+include: w1-master.yaml
+
+properties:
+    w1-gpios:
+        type: phandle-array
+        required: true
+        description: Host GPIO pin connected to 1-wire device pin
+
+    nrf_timer_num:
+        type: int
+        required: true
+        description: NRFX TIMER Number (0-6 on nrf52) to be used for 1-wire bit bashing on w1-gpios

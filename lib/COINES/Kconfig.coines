@@ -11,7 +11,7 @@ config COINES
 	select PIPES
 	select RING_BUFFER
 	depends on SYSTEM_WORKQUEUE_STACK_SIZE >= 2048
-	depends on MAIN_STACK_SIZE >= 16384
+#	depends on MAIN_STACK_SIZE >= 16384
 	help
 	  Enable COINES on Zephyr library
 

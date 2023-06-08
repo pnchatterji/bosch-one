@@ -14,3 +14,11 @@ config BST_SHUTTLE_SELECT_VDD_2_8
 config BST_USB_AUTO_START
 	bool "Auto start USB Driver for console support via USB"
 	depends on BOARD_BST_AB3_NRF52840
+
+#Information returned by coines_get_board_info()
+config COINES_BOARD_ID
+	int "COINES Board ID"
+config COINES_HW_ID
+	int "COINES HW ID"
+config COINES_SW_ID
+	int "COINES SW ID"

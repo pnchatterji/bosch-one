@@ -1,0 +1,13 @@
+# Copyright (c) 2023 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+config W1_BBASH
+	bool "W1 Bit-bashing driver"
+	default y
+	depends on DT_HAS_W1_BBASH_ENABLED
+	select GPIO
+	select DYNAMIC_INTERRUPTS
+	select W1
+	help
+	  Enable W1 Bit-bashing driver
+

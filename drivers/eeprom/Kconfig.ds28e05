@@ -1,0 +1,11 @@
+# Copyright (c) 2023 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+config DS28E05
+	bool "DS28E05 driver"
+	default y
+	depends on DT_HAS_MAXIM_DS28E05_ENABLED
+	select GPIO
+	help
+	  Enable EEPROM driver for DS28E05
+
