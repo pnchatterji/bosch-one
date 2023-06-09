@@ -178,10 +178,14 @@ example implementation of the HAL using COINES. For Zephyr drivers, the HAL impl
 done using appropriate Zephyr API calls. When the implementation is complete, this is what
 the architecture will resemble:
 <style>
-table, th, td, tl, tr {
-   border: 1px solid black;
+table,  tl, tr {
+   border: 2px solid black;
 }
+th {
+        display: none;
+    }
 </style>
+
 |                     |
 |:-------------------:|
 |     Application     |
@@ -207,9 +211,9 @@ The Bosch Sensortec Sensor APIs are usually organized as follows:
 				example2
 					main.C
 
-1. Add the Sensor API to Bosch One repository in the sensor-api folder, if not already available. 
-This can be done by either physically copying the files to a new sensor-api sub-folder, or by 
-adding a link to the Sensor API GitHub repository in bosch-one.yaml in the Bosch One root folder
+1. Add the Sensor API to Bosch One repository in the *sensor-api* folder, if not already available. 
+This can be done by either physically copying the files to a new *sensor-api* sub-folder, or by 
+adding a link to the Sensor API GitHub repository in *bosch-one.yaml* in the Bosch One root folder
  
 2. Alternatively, if the driver is being written for deployment to upstream Zephyr, it is also
 possible to copy the Sensor API files to the Zephyr driver folder ( *bxx_driver_impl/driver* ). 
