@@ -1,0 +1,6 @@
+sample:
+  name: BXX Sensor sample
+tests:
+  sample.sensor.bxx:
+    harness: sensor
+    tags: samples sensor

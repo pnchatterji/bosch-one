@@ -32,7 +32,9 @@ User guides for Z-COINES and sensor device drivers are available in the *doc* fo
 
 [Z-COINES User Guide](<./doc/COINES/COINES for Zephyr User Guide.md>)
 
-[BHIx60 Driver User Guide](<./doc/bhix60/BHIX60 Zephyr Driver User Guide.md>)
+[BHIx60 Driver User Guide](<./doc/drivers/BHIX60 Zephyr Driver User Guide.md>)
+
+[Sensor Driver Template](<./doc/drivers/Sensor Driver Template Guide.md>)
 
 ### Samples
 Samples for Z-COINES and sensor device drivers are available  in the *samples* folder.
@@ -51,3 +53,12 @@ This is an alternative approach to building a standard COINES example for a sens
 
 [Z-COINES Sensor Script](<./samples/coines/sensor_script/README.rst>)
 This sample contains a batch script for building and running *all* the standard examples of a sensor in the sensor-api folder, and logging the results in a log file. It is based on the generic sensor sample described above. It can be used as a template for automated testing scripts for user applications based on Z-COINES.
+
+### Special Samples
+There are some applications located in the samples directory that have a special purpose.
+
+[COINES Bridge Firmware](<./samples/coines/coines_bridge_firmware/README.rst>)
+This is a version of the COINES bridge firmware built on top of Z-COINES. The COINES bridge can be used by desktop applications to run COINES applications on Bosch Sensortec application boards without the need to flash. Refer to the baremetal COINES User Guide for more details.
+
+[Sensor Driver Template](<./samples/sensor/sensor_driver_template/README.rst>)
+This is a template for creating new Zephyr drivers for Bosch Sensortec sensors and adding them to the Bosch One repository or to upstream Zephyr. Refer the document *Sensor Driver Template Guide* in the doc folder for details.

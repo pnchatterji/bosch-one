@@ -1,0 +1,7 @@
+sample:
+  name: Sensor Driver Template
+tests:
+  sample.sensor.sensor_driver_template:
+    harness: sensor
+    tags: samples sensor
+    depends_on: arduino_spi

@@ -292,7 +292,7 @@ static const struct w1_driver_api w1_bbash_driver_api = {
 	DEVICE_DT_INST_DEFINE(inst, &w1_bbash_init, NULL, \
 				  &w1_bbash_data_##inst,		\
 			      &w1_bbash_config_##inst,			\
-			      POST_KERNEL, CONFIG_EEPROM_INIT_PRIORITY,		\
+			      POST_KERNEL, CONFIG_W1_INIT_PRIORITY,		\
 			      &w1_bbash_driver_api);
 
 DT_INST_FOREACH_STATUS_OKAY(W1_BBASH_INIT)

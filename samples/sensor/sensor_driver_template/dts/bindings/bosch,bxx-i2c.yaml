@@ -1,0 +1,45 @@
+# Copyright (c) 2020 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+description: Bosch BXX sensor 
+
+compatible: "bosch,bxx"
+
+#this device supports both spi and i2c interfaces, as configured in overlay
+#this is the binding for i2c
+#TIP: Add any additional parameters that are required for initializing the
+#BXX device that need to be set in the board DTS overlay
+
+include: i2c-device.yaml
+
+properties:
+    hirq-gpios:
+      type: phandle-array
+      required: false
+      description: |
+        Interrupt Out pin of BXX. 
+        TIP: Remove if no interrupt pin is available on BXX. This parameter is 
+        optional in case an application does not require the interrupt feature. 
+    csm-gpios:
+      type: phandle-array
+      required: false
+      description: |
+        Chip Select pin is used as i2c/spi mode selector on most BST devices. On 
+        some boards, it is directly wired to VDD to force i2c mode permanently. 
+        If wired to a GPIO, it should be specified here. csm_gpios will be pulled 
+        up at driver init if BXX device driver is on an i2c node in DTS 
+    addr-gpios:
+      type: phandle-array
+      required: false
+      description: |
+        SDO pin on most BST devices has a dual use as address selector in I2C mode,
+        to select one of two I2C addresses. It may be hard-wired to VDD/Gnd on 
+        some boards. In case it is wired to a GPIO, it can be specified here, and
+        its desired state can be specified using addr-state. The i2c address specified
+        in the DTS should correspond to the specified state.
+    addr-state:
+      type: int
+      required: false
+      description: |
+        Desired state of address selector pin addr-gpios, 0 or 1. I2C address should
+        correspond to this value

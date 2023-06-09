@@ -1,0 +1,22 @@
+# Copyright (c) 2020 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+description: Bosch BXX sensor 
+
+compatible: "bosch,bxx"
+
+#this device supports both spi and i2c interfaces, as configured in overlay
+#this is the binding for spi
+#TIP: Add any additional parameters that are required for initializing the
+#BXX device that need to be set in the board DTS overlay
+
+include: spi-device.yaml
+
+properties:
+    hirq-gpios:
+      type: phandle-array
+      required: false
+      description: |
+        Interrupt Out pin of BXX. 
+        TIP: Remove if no interrupt pin is available on BXX. This parameter is 
+        optional in case an application does not require the interrupt feature. 
