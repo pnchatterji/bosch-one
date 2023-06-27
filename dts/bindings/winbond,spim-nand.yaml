@@ -11,11 +11,11 @@ include: spi-device.yaml
 properties:
     hold-gpios:
       type: phandle-array
-      required: true
-      description: Hold pin of SPI
+      required: false
+      description: Hold pin of SPI (optional as it may be hard wired)
     wp-gpios:
       type: phandle-array
-      required: true
-      description: Hold pin of SPI
+      required: false
+      description: Hold pin of SPI (optional as it may be hard wired)
 
     

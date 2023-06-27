@@ -7,10 +7,10 @@ Overview
 ********
 
 This COINES for Zephyr (ZCOINES) sample application tests the complete COINES API on 
-Application Board 3.0 and Arduino Nicla Sense ME
+Application Board 3.x and Arduino Nicla Sense ME
 
 *Abbreviations used:* 
-AB3 - Application Board 3.0 
+AB3 - Application Board 3.x 
 Nicla - Arduino Nicla Sense ME
 
 Wiring
@@ -31,8 +31,8 @@ Prerequisite: nrf Connect is installed on the host machine, and bosch-one module
 3. In the template field, select bosch-one/coines_app
 4. Enter the desired project name and location
 5. Create a build configuration for the application using any of the supported boards
-	- bst_arduino_nicla
-	- bst_ab3_nrf52840
+	- bosch_nicla_sense
+	- bosch_app3x
 6. Perform a pristine build 
 7. Follow the instructions in the bosch-one/doc folder for flashing and running on the target board
 8. Launch a console application such as HTERM and connect to the target for performing the tests.

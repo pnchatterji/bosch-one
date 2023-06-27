@@ -139,8 +139,8 @@ The Build Configuration window will open.
 Click on “Custom boards”, and select a custom board supported by Bosch One from the drop-down list.
 
 For example:
-- **bst_ab3_nrf52840** for **Bosch Sensortec Application Board 3.0**
-- **bst_arduino_nicla** for **Arduino Nicla Sense ME**
+- **bosch_app30** for **Bosch Sensortec Application Board 3.0**
+- **bosch_nicla_sense** for **Arduino Nicla Sense ME**
 
 <img src="media/zcoines-add-build-config-dialog.png" alt="Add build config dialog" title="Add build config dialog" width="500"/>
 

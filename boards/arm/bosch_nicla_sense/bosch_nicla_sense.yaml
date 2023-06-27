@@ -1,0 +1,19 @@
+identifier: bosch_nicla_sense
+name: Bosch Nicla Sense
+type: mcu
+arch: arm
+ram: 64
+flash: 512
+toolchain:
+  - zephyr
+  - gnuarmemb
+  - xtools
+supported:
+  - gpio
+  - i2c
+  - spi
+  - shell
+  - counter
+  - nvs
+  - pwm
+  - watchdog

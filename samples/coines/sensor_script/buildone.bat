@@ -13,7 +13,7 @@ if [%1]==[] goto argerr
 if [%2]==[] goto argerr
 
 set "APPDIR=%cd%"
-west build --build-dir "%APPDIR%\build" "%APPDIR%" --pristine --board bst_ab3_nrf52840 -- -DNCS_TOOLCHAIN_VERSION:STRING="NONE" -DUSE_SENSOR=%1 -DUSE_EXAMPLE=% -DCOINES_AUTO_TEST=1
+west build --build-dir "%APPDIR%\build" "%APPDIR%" --pristine --board bosch_app30 -- -DNCS_TOOLCHAIN_VERSION:STRING="NONE" -DUSE_SENSOR=%1 -DUSE_EXAMPLE=% -DCOINES_AUTO_TEST=1
 
 exit /b
 

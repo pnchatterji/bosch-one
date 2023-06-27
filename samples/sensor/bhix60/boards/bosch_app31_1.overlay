@@ -1,0 +1,37 @@
+/*
+ * Copyright (c) 2023 Bosch Sensortec GmbH.
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+ 
+/* 
+ * Modifications required to the default Bosch Application Board 3.0 DTS
+ * to support BHIx60 Driver for BHI260AP shuttle board
+ */
+ 
+/{
+	/*Define "Wake-Up" GPIO pin for Power Management*/
+	wup {
+		compatible = "gpio-keys";
+		wup0: wup_0 {
+			gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>;	/*Interrupt-OUT pin of BHI260*/
+			label = "BHIx60 Int pin";
+						status = "okay";
+		};
+	};
+};
+
+
+&spi2 {
+	cs-gpios   = <&gpio0 24 GPIO_ACTIVE_HIGH>;
+	/delete-node/ bmxx_spi@0;
+	bhix60_dev: bhix60@0 {
+		compatible = "bosch,bhix60";
+		reg = <0>;
+		spi-max-frequency = <1000000>;//<20000000>;
+		label = "bhix60";
+		status = "okay";
+		reset-gpios = <&gpio1 2 GPIO_ACTIVE_LOW>;	//reset pin of BHI260
+		hirq-gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>;	//Interrupt-OUT pin of BHI260 
+	};		
+};

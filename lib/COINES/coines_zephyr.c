@@ -14,8 +14,8 @@
  * @brief Ensure that the correct version of COINES for Zephyr is being used for
  * the currently selected board
  */
-#if !defined(CONFIG_BOARD_BST_AB3_NRF52840) && !defined(CONFIG_BOARD_BST_ARDUINO_NICLA)
-#error This version of COINES for Zephyr is only tested for AB3 and NICLA
+#if !defined(CONFIG_BOARD_BOSCH_APP30) && !defined(CONFIG_BOARD_BOSCH_APP31) &&!defined(CONFIG_BOARD_BOSCH_NICLA_SENSE)
+#error This version of COINES for Zephyr is only tested for APP3.x and NICLA
 #endif
 
 #include <stdio.h>
@@ -596,39 +596,23 @@ int16_t coines_set_led(enum coines_led led, enum coines_led_state led_state)
  *  @param[in] vddio_millivolt   : VDDIO voltage to be set in sensor.
  *
  *  @note In APP2.0 board, voltage level of 0 or 3300mV is supported.
- *        In APP3.0 board, voltage levels of 0, 1800mV and 2800mV are supported.
- *
+ *        In APP3.0 and 3.1 boards, voltage levels of 0, 1800mV and 2800mV are supported.
+ *        In Nicla Sense ME, 0 and 1.8 V is supported
+ *  @note this API delegates to the function set_shuttle_vdd_vddio() which is defined in the
+ *        board.c in the board definition folder of supported BOSCH boards
  *  @return Results of API execution status.
  *  @retval 0 -> Success
  *  @retval Any non zero value -> Fail
  */
+int16_t set_shuttle_vdd_vddio(uint16_t vdd_millivolt, uint16_t vddio_millivolt);
+
 int16_t coines_set_shuttleboard_vdd_vddio_config(uint16_t vdd_millivolt, uint16_t vddio_millivolt)
 {
-	struct gpio_dt_spec ios_vdd_sel = GPIO_DT_SPEC_GET(DT_NODELABEL(shuttle_vdd_sel),gpios);
-	struct gpio_dt_spec ios_vdd_en = GPIO_DT_SPEC_GET(DT_NODELABEL(shuttle_vdd_en),gpios);
-	struct gpio_dt_spec ios_vddio_en = GPIO_DT_SPEC_GET(DT_NODELABEL(shuttle_vddio_en),gpios);
-    if (vdd_millivolt == 0)
-    {
-        gpio_pin_set_dt(&ios_vdd_en,GPIO_OUTPUT_INACTIVE);
-        gpio_pin_set_dt(&ios_vdd_sel,GPIO_OUTPUT_INACTIVE);
-    }
-    else if ((vdd_millivolt > 0) && (vdd_millivolt <= 1800))
-    {
-        gpio_pin_set_dt(&ios_vdd_en,GPIO_OUTPUT_ACTIVE);
-        gpio_pin_set_dt(&ios_vdd_sel,GPIO_OUTPUT_INACTIVE);
-    }
-    else
-    {
-        gpio_pin_set_dt(&ios_vdd_en,GPIO_OUTPUT_ACTIVE);
-        gpio_pin_set_dt(&ios_vdd_sel,GPIO_OUTPUT_ACTIVE);
-    }
-
-    if (vddio_millivolt == 0)
-        gpio_pin_set_dt(&ios_vddio_en,GPIO_OUTPUT_INACTIVE);
-    else
-        gpio_pin_set_dt(&ios_vddio_en,GPIO_OUTPUT_ACTIVE);
-    return COINES_SUCCESS;
+    return (set_shuttle_vdd_vddio(vdd_millivolt,vddio_millivolt))?
+                        COINES_E_FAILURE:
+                        COINES_SUCCESS;
 }
+
 /**
  * @brief I2C BUS RELATED APIs 
  * ===========================
@@ -715,7 +699,7 @@ int16_t coines_config_i2c_bus(enum coines_i2c_bus bus, enum coines_i2c_mode i2c_
             break;
         default :
 		    LOG_ERR("Unknown I2C mode %d\n",(int)i2c_mode);
-            return -EINVAL;
+            return COINES_E_I2C_CONFIG_FAILED;
     }
 
 	if (!i2c_dev) {
@@ -1521,9 +1505,11 @@ const char* coines_get_version()
  *
  * @return void
  */
-#ifdef CONFIG_BOARD_BST_AB3_NRF52840
+#ifdef CONFIG_BOARD_BOSCH_APP30
     #define  MAGIC_LOCATION          (0x2003FFF4)
-#elif CONFIG_BOARD_BST_ARDUINO_NICLA 
+#elif CONFIG_BOARD_BOSCH_APP31
+    #define  MAGIC_LOCATION          (0x2003FFF4)
+#elif CONFIG_BOARD_BOSCH_NICLA_SENSE 
     #define  MAGIC_LOCATION          (0x2000F804)
 #else
     #error "Magic location not defined for this board"

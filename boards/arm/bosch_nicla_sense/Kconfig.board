@@ -1,0 +1,28 @@
+# Configuration for Arduino Nicla Sense ME board pre-configured 
+# for Bosch Sensortec Drivers and COINES library
+
+# Copyright (c) 2023 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_BOSCH_NICLA_SENSE
+	bool "Bosch Nicla Sense"
+	depends on SOC_NRF52832_QFAA
+
+#Added for compatibility with Bosch Application Boards
+#ignored in Nicla
+config BOSCH_SHUTTLE_VDD_MV
+	int "VDD for Shuttle board in MV: always 1800 for Nicla"
+	depends on BOARD_BOSCH_NICLA_SENSE
+
+#Added for compatibility with Bosch Application Boards
+#ignored in Nicla
+config BOSCH_USB_AUTO_START
+	bool "Auto start USB Driver"
+
+#Information returned by coines_get_board_info()
+config COINES_BOARD_ID
+	int "COINES Board ID"
+config COINES_HW_ID
+	int "COINES HW ID"
+config COINES_SW_ID
+	int "COINES SW ID"

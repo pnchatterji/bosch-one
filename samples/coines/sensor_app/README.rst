@@ -20,8 +20,8 @@ The sensor name and example name have to be passed as additional build arguments
 Building and Running with VSCode
 ********************************
 
-This project can be built using VS Code with nrfConnect plugin, and executed on BOSCH Application Board 3:
-Currently, it only supports the board bst_ab3_nrf52840
+This project can be built using VS Code with nrfConnect plugin, and executed on BOSCH Application Board 3.x:
+Currently, it only supports the board bosch_app3x
 
 The macros 
 -DUSE_SENSOR=<sensor name> 

@@ -1,5 +1,5 @@
 .. _flogfs_fs:
-Copyright (c) 2022 Bosch Sensortec GmbH
+Copyright (c) 2023 Bosch Sensortec GmbH
 FLogFS Zephyr port source
 #########################
 
@@ -24,11 +24,13 @@ It has been tested with Bosch Sensortic Application Board 3.0
 which a Winbond W25M02GW flash chip connected to the MCU via 
 SPI0 or SPI3 (for higher frequency).
 
-The board DTS is bst_ab3_nrf52840
+The board DTS is bosch_app30
 
-As configured in bst_ab3_nrf52840 DTS, the The FlogFS file system is auto-mounted
+As configured in bosch_app30 DTS, the The FlogFS file system is auto-mounted
 and available under the Zephyr filesystem as the volume /flog0. 
 The path to a file called foo.txt on this volume would be /flog0/foo.txt
 
 The Zephyr filesystem commands can be used to access this volume by using /flog0 as
 the path root.
+
+(Also tested with Application Board 3.1 DTS bosch_app31)

@@ -139,7 +139,8 @@ static inline int w25_flash_initialize(void){
 				flash.pages_per_block = W25M02GW_NO_OF_PAGES_PER_BLOCK;
 			}
 		}
-		else if(device_id == W25N02JW_DEVICE_ID) /*APP3.0 - W25N02JW Latest Flash chip */
+		else if(device_id == W25N02JW_DEVICE_ID || /*APP3.0 - W25N02JW Latest Flash chip */
+				device_id == W25N02KW_DEVICE_ID)   /*APP3.1 - W25N02KW Latest Flash chip */
 		{
 			flash.ext_api.get_memory_params = w25n02jw_get_memory_params;
 			flash.ext_api.get_device_info = w25n02jw_get_manufacture_and_devid;
@@ -155,8 +156,8 @@ static inline int w25_flash_initialize(void){
 			w25_dev_layout.pages_count=W25N02JW_AVAILABLE_BLOCKS;/*zephyr page => w25 block*/
 			w25_dev_layout.pages_size=W25N02JW_BLOCK_SIZE; /*zephyr page => w25 block*/
 			flash.id[0]=W25_MANUFACTURER_ID;
-			flash.id[1]=(W25N02JW_DEVICE_ID>>8);
-			flash.id[2]=(W25N02JW_DEVICE_ID&0xFF);
+			flash.id[1]=(device_id>>8);
+			flash.id[2]=(device_id&0xFF);
 			flash.available_size=W25N02JW_FLASH_SIZE;
 			flash.block_size=W25N02JW_BLOCK_SIZE;
 			flash.num_blocks=W25N02JW_AVAILABLE_BLOCKS;

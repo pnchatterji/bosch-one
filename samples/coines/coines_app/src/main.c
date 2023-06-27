@@ -14,9 +14,11 @@
 
 /*Define the number of buttons available on the test board. Default is 2.
 Setting it larger than 2 is meaningless as 2 is the maximum used in below tests*/
-#ifdef CONFIG_BOARD_BST_AB3_NRF52840
+#ifdef CONFIG_BOARD_BOSCH_APP30
 #define TEST_BOARD_BUTTONS 2
-#elif CONFIG_BOARD_BST_ARDUINO_NICLA
+#elif CONFIG_BOARD_BOSCH_APP31
+#define TEST_BOARD_BUTTONS 2
+#elif CONFIG_BOARD_BOSCH_NICLA_SENSE
 #define TEST_BOARD_BUTTONS 1
 #else
 #define TEST_BOARD_BUTTONS 2
@@ -78,7 +80,7 @@ int test_gpio_led(void)
 	return 0;
 }
 
-#ifdef CONFIG_BOARD_BST_ARDUINO_NICLA
+#ifdef CONFIG_BOARD_BOSCH_NICLA_SENSE
 #define BHI260_REG_CHIP_ID (0x2B)
 #define BHI260_REG_FUSER_ID (0x1C)
 #define BHI260_REG_FUSER_VER (0x1D)
@@ -147,7 +149,7 @@ int test_aux_spi(void)
 	puts("test_aux_spi() is not available for this board");
 	return 0;
 }
-#else /*CONFIG_BOARD_BST_ARDUINO_NICLA: below tests not valid for Nicla*/
+#else /*CONFIG_BOARD_BOSCH_NICLA_SENSE: below tests not valid for Nicla*/
 /*
  * I2C API Test
  */
@@ -603,7 +605,7 @@ void fs_format_remount(void)
 #include <fs/flogfs_fs.h>
 void fs_format_remount(void)
 {
-	int rc = flogfs_format_remount);
+	int rc = flogfs_format_remount();
 	printf("format done. Ret:%d\n",rc);
 	puts("Do warm reboot");
 }

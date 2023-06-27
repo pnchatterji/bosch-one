@@ -1,0 +1,24 @@
+# BOSCH-APP30 board configuration
+
+# Copyright (c)2023 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_BOSCH_APP30
+	bool "BOSCH-APP30"
+	depends on SOC_NRF52840_QIAA
+
+config BOSCH_SHUTTLE_VDD_MV
+	int "VDD for Shuttle board in MV: 1800 or 2800"
+	depends on BOARD_BOSCH_APP30
+
+config BOSCH_USB_AUTO_START
+	bool "Auto start USB Driver for console support via USB"
+	depends on BOARD_BOSCH_APP30
+
+#Information returned by coines_get_board_info()
+config COINES_BOARD_ID
+	int "COINES Board ID"
+config COINES_HW_ID
+	int "COINES HW ID"
+config COINES_SW_ID
+	int "COINES SW ID"

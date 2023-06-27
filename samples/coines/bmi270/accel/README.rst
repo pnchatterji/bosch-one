@@ -11,7 +11,7 @@ acclerometer functions of the BMI270 sensor using the BMI270 Sensor API
 integrated with ZCOINES
 
 *Abbreviations used:* 
-AB3 - Application Board 3.0 
+AB3 - Application Board 3.x
 
 Wiring
 ******
@@ -27,7 +27,7 @@ Prerequisite: nrf Connect is installed on the host machine, and bosch-one module
 2. Click on Create a new Application
 3. In the template field, select bosch-one/coines/bmi270/accel
 4. Enter the desired project name and location
-5. Create a build configuration for the application for bst_ab3_nrf52840
+5. Create a build configuration for the application for bosch_app30 or bosch_app31
 6. Perform a pristine build 
 7. Follow the instructions in the bosch-one/doc folder for flashing and running on the target board
 8. Launch a console application such as HTERM and connect to the target for performing the tests.

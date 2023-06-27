@@ -58,12 +58,12 @@ These samples are tested on :
 1. The Arduino Nicla Sense ME board, which has an integrated BHI260AP sensor 
 connected via SPI to a host nRF52832, with BMP390 (pressure sensor), BMM150 (3-axis magnetometer) 
 and BME688 (environment sensor) as auxiliary sensors connected via i2c and SPI to the BHI260. 
-NOTE: The actual board definition to be used for building the samples is bst_ardunio_nicla
+NOTE: The actual board definition to be used for building the samples is bosch_nicla_sense
 which is a part of this repository, and not the arduino_nicla_sense_me board definition
 which is in the upstream Zephyr repository. The board definition bst_ardunio_nicla is pre-configured
 with Bosch Sensortec drivers that are available in this repository.
  
-2. The Bosch Application Board 3.0 with a BHI260AP shuttle board mounted on it.
+2. The Bosch Application Board 3.x with a BHI260AP shuttle board mounted on it.
 This shuttle board has a BHI260AP sensor that connects via SPI or I2C to the host nRF52832
 on the main board. Additionally, it has a BMP390, BMM150 and BME688 as auxiliary sensors 
 connected via i2c and SPI to the BHI260, as with the Nicla board. 
@@ -148,20 +148,25 @@ that too *only* for AUX and BSEC samples, following setting should be done in *p
 
 This is verified by #ifdef pre-compiler checks in the code, to prevent inadvertent errors.
 
-Build instructions for :ref:`bst_arduino_nicla` board.
+Build instructions for :ref:`bosch_nicla_sense` board.
 
 
 .. zephyr-app-commands::
    :zephyr-app: samples/sensor/bhix60
-   :board: bst_arduino_nicla
+   :board: bosch_nicla_sense
    :goals: build flash
 
-Build instructions for :ref:`bst_ab3_nrf52840` board.
+Build instructions for :ref:`bosch_app30` and :ref:`bosch_app31` boards.
 
 
 .. zephyr-app-commands::
    :zephyr-app: samples/sensor/bhix60
-   :board: bst_ab3_nrf52840
+   :board: bosch_app30
+   :goals: build flash
+
+.. zephyr-app-commands::
+   :zephyr-app: samples/sensor/bhix60
+   :board: bosch_app31
    :goals: build flash
 
 Sample Output

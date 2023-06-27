@@ -33,8 +33,8 @@ Prerequisite: nrf Connect is installed on the host machine, and bosch-one module
 3. In the template field, select bosch-one/coines_bridge_firmware
 4. Enter the desired project name and location
 5. Create a build configuration for the application using any of the supported boards
-	- bst_arduino_nicla
-	- bst_ab3_nrf52840
+	- bosch_nicla_sense
+	- bosch_app3x
 6. Perform a pristine build 
 7. Follow the instructions in the bosch-one/doc folder for flashing and running on the target board
 8. Build and launch coines_bridge_test.exe in a windows console from the baremetal COINES installation

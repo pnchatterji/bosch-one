@@ -23,7 +23,8 @@
 #include <zephyr/drivers/gpio.h>
 LOG_MODULE_REGISTER(bq25120, CONFIG_SENSOR_LOG_LEVEL);
 
-#include "bq25120.h"
+#include "bq25120_defs.h"
+#include <drivers/bq25120.h>
 /* 
 Battery SOC Look-Up Table, based on example in BQ25120 specs ch 9.3.4
 TODO: Make this configurable via DTS
@@ -51,17 +52,37 @@ struct bq25120_data {
 	uint32_t battery_mv;			//current battery voltage in mv
 	uint32_t bat_reg_mv;			//current battery regulation voltage in mv
 	uint32_t battery_soc;			//current battery state-of-charge in %
+	const struct device *dev;		//bq25120 device pointer for cb
+	struct gpio_callback int_gpio_cb; //interrupt callback structure for INT pin
+	struct gpio_callback rst_gpio_cb; //interrupt callback structure for RESET pin
+	bq25120_int_status_cb_t status_cb;	  //callback function for int status
+	bq25120_reset_cb_t  reset_cb;	  //callback function for reset event
 };
 
 struct bq25120_cfg {
-	struct i2c_dt_spec bus;			//i2c device used by bq25120
-	struct gpio_dt_spec cd_gpios;	//gpio pin connected to cd pin of bq25120
-	uint32_t bat_reg_mv;			//configured regulation voltage of battery in mv (3.6-4.65V)
-	uint32_t ilim_ma;				//configured input current limit of device in mA (50-400mA)
-	uint32_t bat_uvlo_mv;			//configured Battery under-voltage lockout in mV (2.2-3 V, Disable UVLO:0)
-	uint32_t ichagre_ma;			//configured Charging current in mA (5-300mA, Disable Charger:0)
-	uint32_t ipreterm_ua;			//configured pre-charging current/terminating current in uA 
-									//(500uA to 37000uA (37mA), Disable Termination:0)
+	struct i2c_dt_spec bus;			 // i2c device used by bq25120
+	struct gpio_dt_spec cd_gpios;	 // gpio pin connected to CD pin of bq25120
+	struct gpio_dt_spec lsctrl_gpios;// gpio pin connected to LSCTRL pin of bq25120
+	struct gpio_dt_spec	int_gpios;	 // gpio pin connected to BQ25120 INT pin, if any
+	struct gpio_dt_spec  reset_gpios;// gpio pin connected to BQ25120 RESET pin, if any
+	uint32_t sys_vout_mv;			 // Output voltage of SYS in mv - min 1100, max 3300, 0 to disable (0,1.1-3.3V)
+	uint32_t ls_ldo_mv;				 // Output voltage of LS/LDO in mv - min 800, max 3300, 0 to disable (0,0.8-3.3V)
+	uint32_t bat_reg_mv;			 // configured regulation voltage of battery in mv (3.6-4.65V)
+	uint32_t ilim_ma;				 // configured input current limit of device in mA (50-400mA)
+	uint32_t bat_uvlo_mv;			 // configured Battery under-voltage lockout in mV (2.2-3 V, Disable UVLO:0)
+	uint32_t ichagre_ma;			 // configured Charging current in mA (5-300mA, Disable Charger:0)
+	uint32_t ipreterm_ua;			 // configured pre-charging current/terminating current in uA 
+									 // (500uA to 37000uA (37mA), Disable Termination:0)
+	uint32_t wake1_ms;				 // Wake1 time setting in ms - 50 or 500 ms, 0 to disable 
+	uint32_t wake2_ms;				 // Wake2 time setting in ms - 1000 or 1500 ms, 0 to disable 
+	uint32_t reset_s;			 	 // Reset time setting in Sec - 4, 8, 10 or 14, 0 to disable 
+	uint8_t	mrrec;					 // After Reset, device enters 0 - Ship mode, 1 - Hi-Z Mode
+	uint8_t	mrreset_vin;			 // Reset when Reset time expires 0-Always 1-When Vin is healthy
+	uint8_t	timer_int_en;			 // Enable interrupt signalling of timer events
+    uint8_t	ts_int_en;		         // Enable interrupt signalling of temperature sensor (TS) events
+	uint8_t charge_int_en;			 // Enable interrupt signalling of charging events
+	uint8_t pg_mr;					 // Use PG Output as 0-Power Good Status, 1-MR Input Status
+
 };
 
 static int bq25120_reg_read(const struct device *dev, uint8_t reg_addr, uint8_t *val)
@@ -199,14 +220,22 @@ int bq25120_device_reset(const struct device *dev)
 }
 
 /*!
- * @brief Set Operation Mode of BQ25120.
- * @param[in] opmode : Operation Mode code 
- * 					   Normal Mode:	BQ25120_NORMAL_OP_ENABLE
- * 					   Ship Mode:   BQ25120_SHIP_MODE_ENABLE 
+ * @brief Set Operation Mode of BQ25120 to Ship Mode
  */
-int bq25120_set_op_mode(const struct device *dev, uint8_t opmode)
+int bq25120_set_op_mode_ship(const struct device *dev)
 {
-	return bq25120_reg_write(dev, BQ25120_STATUS_AND_MODE_CTRL_REG,opmode); 
+	bq25120_set_cd_state(dev,1);
+	int ret = bq25120_reg_write(dev, BQ25120_STATUS_AND_MODE_CTRL_REG,BQ25120_SHIP_MODE_ENABLE); 
+	bq25120_set_cd_state(dev,0);
+	return ret;
+}
+
+/*!
+ * @brief Set Operation Mode of BQ25120 to Normal Mode
+ */
+int bq25120_set_op_mode_normal(const struct device *dev)
+{
+	return bq25120_reg_write(dev, BQ25120_STATUS_AND_MODE_CTRL_REG,BQ25120_NORMAL_OP_ENABLE); 
 }
 
 /*!
@@ -422,12 +451,204 @@ int8_t bq25120_set_ipreterm(const struct device *dev, uint32_t ipreterm)
 		LOG_ERR("invalid charging current specified:%d\n",ipreterm);
 		return -EINVAL;
 	}
-	uint8_t ipreterm_disab = BQ25120_IPRETERM_DISABLE_CODE(ipreterm);
+	uint8_t ipreterm_enab = BQ25120_IPRETERM_ENABLE_CODE(ipreterm);
 	uint8_t ipreterm_range = BQ25120_IPRETERM_RANGE_CODE(ipreterm);
 	uint8_t ipreterm_code = BQ25120_IPRETERM_CODE(ipreterm);
-	uint8_t regval=	BQ25120_IPRETERM_REG_CODE(ipreterm_range,ipreterm_code,ipreterm_disab);
+	uint8_t regval=	BQ25120_IPRETERM_REG_CODE(ipreterm_range,ipreterm_code,ipreterm_enab);
 	return bq25120_reg_write(dev, BQ25120_FAST_CHARGE_CTRL_REG,regval);
 }
+
+/*!
+ * @brief Set SYS Output Voltage (VOUT)
+ * @param[in] vout: output voltage in mv - 3300mv (3.3V)
+ * @return
+ * 	0 		:no error
+ * -EINVAL :parmeters out of range
+ * -EIO 	:comm error
+ */
+int8_t bq25120_set_sys_vout(const struct device *dev, uint32_t vout)
+{
+	if(vout != BQ25120_SYS_DISABLE_MV && 
+		(vout < BQ25120_SYS_VOUT_MIN_MV || vout > BQ25120_SYS_VOUT_MAX_MV))
+	{
+		LOG_ERR("invalid SYS VOUT specified:%d\n",vout);
+		return -EINVAL;
+	}
+	uint8_t sys_out_enab = BQ25120_SYS_OUT_ENABLE_CODE(vout);
+	uint8_t sys_sel_code = BQ25120_SYS_SEL_CODE(vout);
+	uint8_t sys_vout_code = BQ25120_SYS_VOUT_CODE(vout);
+	uint8_t regval=	BQ25120_SYS_VOUT_REG_CODE(sys_out_enab,sys_sel_code,sys_vout_code);
+	return bq25120_reg_write(dev, BQ25120_SYS_VOUT_CTRL_REG,regval);
+}
+
+/*!
+ * @brief Set Load Switch and LDO Voltage 
+ * @param[in] ldov: ldo voltage in mv - 3300mv (3.3V)
+ * @return
+ * 	0 		:no error
+ * -EINVAL :parmeters out of range
+ * -EIO 	:comm error
+ */
+int8_t bq25120_set_ls_ldo(const struct device *dev, uint32_t ldov)
+{
+	int8_t rc =0;
+	uint8_t regval=0;
+	const struct bq25120_cfg *cfg = dev->config;
+	if(ldov != BQ25120_LDO_DISABLE_MV && 
+		(ldov < BQ25120_LDO_MIN_MV || ldov > BQ25120_LDO_MAX_MV))
+	{
+		LOG_ERR("invalid LDO voltage specified:%d\n",ldov);
+		return -EINVAL;
+	}
+	/*disable LS and pins before changing LDO Voltage*/
+	regval=	BQ25120_LS_LDO_REG_CODE(BQ25120_LS_DISABLE_CODE,0,cfg->mrreset_vin);
+	rc = bq25120_reg_write(dev, BQ25120_LOAD_AND_LDO_CTRL_REG,regval);
+	/*disable LSCTRL pin, if defined*/
+	if(cfg->lsctrl_gpios.port)
+	{
+		gpio_pin_configure_dt(&cfg->lsctrl_gpios, GPIO_OUTPUT_INACTIVE);
+	}
+	if( ldov == BQ25120_LDO_DISABLE_MV)
+	{
+		/*Already disabled, no further work*/
+		return rc;
+	}
+	k_msleep(10);
+	uint8_t ls_enab = BQ25120_LS_ENABLE_CODE(ldov);
+	uint8_t ldo_code = BQ25120_LDO_CODE(ldov);
+	regval=	BQ25120_LS_LDO_REG_CODE(ls_enab,ldo_code,cfg->mrreset_vin);
+	rc= bq25120_reg_write(dev, BQ25120_LOAD_AND_LDO_CTRL_REG,regval);
+	k_msleep(10);
+	/*re-enable LSCTRL pin, if defined*/
+	if(cfg->lsctrl_gpios.port)
+	{
+		gpio_pin_configure_dt(&cfg->lsctrl_gpios, GPIO_OUTPUT_ACTIVE);
+	}
+	k_msleep(10);
+	return rc;
+}
+
+/*!
+ * @brief Register a callback function for getting  bq25120 status when the
+ * device signals a status/fault event via INT pin
+ * @param[in] status_cb: status callback function 
+ */
+void bq25120_reg_status_cb(const struct device *dev, bq25120_int_status_cb_t int_status_cb)
+{
+	struct bq25120_data *devdata = dev->data;
+	devdata->status_cb = int_status_cb;
+}
+
+/*!
+ * @brief Register a callback function for getting informed when bq25120
+ * device signals a RESET event via RESET pin
+ * @param[in] reset_cb: reset callback function 
+ */
+void bq25120_reg_reset_cb(const struct device *dev, bq25120_reset_cb_t reset_cb)
+{
+	struct bq25120_data *devdata = dev->data;
+	devdata->reset_cb = reset_cb;
+}
+
+/*!
+ * @brief Interrupt callback handler for INT pin 
+ */
+static void bq25120_int_cb(const struct device *gpio_dev, struct gpio_callback *cb,uint32_t pins)
+{
+	ARG_UNUSED(gpio_dev);
+	uint8_t wakereg =0,faultreg=0,tsreg=0;
+	uint16_t status=0;
+	struct bq25120_data *devdata =
+		CONTAINER_OF(cb, struct bq25120_data, int_gpio_cb);
+	const struct device *dev = devdata->dev;
+	const struct bq25120_cfg *cfg = dev->config;
+
+	if ((pins & BIT(cfg->int_gpios.pin)) == 0U) {
+		return;
+	}
+	/*Get faults and events*/
+	bq25120_reg_read(dev, BQ25120_PUSH_BUTTON_CTRL_REG,&wakereg);
+	bq25120_reg_read(dev, BQ25120_FAULT_AND_FAULT_MASK_REG,&faultreg);
+	bq25120_reg_read(dev, BQ25120_TS_CTRL_AND_FAULT_MASK_REG,&tsreg);
+	/*build status bitfield*/
+	status = (wakereg&0x03) | (faultreg&0x80) | ((tsreg&0x70) <<4);
+	if(devdata->status_cb != NULL)
+	{
+		devdata->status_cb(dev,status);
+	}
+}
+/*!
+ * @brief Interrupt callback handler for RESET pin 
+ */
+static void bq25120_reset_cb(const struct device *gpio_dev, struct gpio_callback *cb,uint32_t pins)
+{
+	ARG_UNUSED(gpio_dev);
+	struct bq25120_data *devdata =
+		CONTAINER_OF(cb, struct bq25120_data, rst_gpio_cb);
+	const struct device *dev = devdata->dev;
+	const struct bq25120_cfg *cfg = dev->config;
+
+	if ((pins & BIT(cfg->reset_gpios.pin)) == 0U) {
+		return;
+	}
+	if(devdata->reset_cb != NULL)
+	{
+		devdata->reset_cb(dev);
+	}
+}
+
+/*!
+ * @brief Initialize MR pushbutton related features 
+ * @return
+ * 	0 		:no error
+ * -EINVAL :parmeters out of range
+ * -EIO 	:comm error
+ */
+static int8_t bq25120_init_pb(const struct device *dev)
+{
+	int8_t rc =0;
+	uint8_t regval=0;
+	const struct bq25120_cfg *cfg = dev->config;
+	struct bq25120_data *devdata = dev->data;
+	devdata->dev = dev;
+	uint8_t wake1_code = BQ25120_WAKE1_CODE(cfg->wake1_ms); 
+	uint8_t wake2_code = BQ25120_WAKE2_CODE(cfg->wake2_ms); 
+	uint8_t reset_code = BQ25120_RESET_CODE(cfg->reset_s);
+	uint8_t mrrec_code = BQ25120_MRREC_CODE(cfg->mrrec);
+	uint8_t pgmr_code = BQ25120_PGMR_CODE(cfg->pg_mr);
+	regval=	BQ25120_PB_CTRL_CODE(wake1_code,wake2_code,mrrec_code,reset_code,pgmr_code);
+	rc |= bq25120_reg_write(dev, BQ25120_PUSH_BUTTON_CTRL_REG,regval);
+	uint8_t ts_en_code  = (cfg->ts_int_en)?1:0; 	/*TS Function Disabled*/
+	uint8_t en_int_code = (cfg->charge_int_en)?1:0; /* INT on faults only or fault+ charge events*/
+	uint8_t wake_m_code  = ((cfg->wake1_ms ==0) 
+						 && (cfg->wake1_ms ==0))
+						 		?1:0;/*Mask Wake Condition from MR*/
+	uint8_t reset_m_code = (cfg->reset_s ==0)
+								?1:0; /*Mask RESET condition from MR*/
+	uint8_t timer_m_code = (cfg->timer_int_en)?0:1; /*Mask Timer fault (safety)*/
+	regval=	BQ25120_TS_FAULT_CODE(ts_en_code,en_int_code,wake_m_code,reset_m_code,timer_m_code);
+	rc |= bq25120_reg_write(dev, BQ25120_TS_CTRL_AND_FAULT_MASK_REG,regval);
+	/*attach interrupt callbacks for INT and RESET if gpios are defined*/
+	if(cfg->int_gpios.port)
+	{
+		const struct gpio_dt_spec *int_gpios_p =&cfg->int_gpios;
+		gpio_pin_configure_dt(int_gpios_p, GPIO_INPUT);
+		gpio_pin_interrupt_configure_dt(int_gpios_p,GPIO_INT_EDGE_TO_ACTIVE);
+		gpio_init_callback(&devdata->int_gpio_cb, bq25120_int_cb, BIT(int_gpios_p->pin));
+		gpio_add_callback(int_gpios_p->port, &devdata->int_gpio_cb);
+	}
+
+	if(cfg->reset_gpios.port)
+	{
+		const struct gpio_dt_spec *rst_gpios_p =&cfg->reset_gpios;
+		gpio_pin_configure_dt(rst_gpios_p, GPIO_INPUT);
+		gpio_pin_interrupt_configure_dt(rst_gpios_p,GPIO_INT_EDGE_TO_ACTIVE);
+		gpio_init_callback(&devdata->rst_gpio_cb, bq25120_reset_cb, BIT(rst_gpios_p->pin));
+		gpio_add_callback(rst_gpios_p->port, &devdata->int_gpio_cb);
+	}
+	return rc;
+}
+
 
 /**
  * @brief sensor value get
@@ -495,11 +716,17 @@ static int bq25120_init(const struct device *dev)
 	int rslt=0;
     uint8_t status = 0, fault =0;
 	const struct bq25120_cfg *cfg = dev->config;
-	status = gpio_pin_configure_dt(&cfg->cd_gpios,
+	rslt = gpio_pin_configure_dt(&cfg->cd_gpios,
 			   GPIO_OUTPUT | GPIO_OPEN_DRAIN);
-	if (status < 0) {
+	if (rslt < 0) {
 		LOG_ERR("Unable to configure CD pin to output and open drain");
-		return status;
+		return rslt;
+	}
+
+	rslt = bq25120_set_cd_state(dev, BQ25120_CD_PIN_ENABLE);
+	if (rslt < 0) {
+		LOG_ERR("Unable to set CD pin to Enable");
+	 	return status;
 	}
 
 	/* Read the BQ25120 status register */
@@ -508,21 +735,25 @@ static int bq25120_init(const struct device *dev)
 	bq25120_get_fault(dev, &fault);
 	LOG_INF("BQ25120 status: %x fault %x",status, fault);
 
-	//TODO: set CD state depending on VIN/Battery-Only operation
-	//after getting  VIN /Battery state from fault bits
-	// status = bq25120_set_cd_state(dev, BQ25120_CD_PIN_ENABLE);
-	// if (status < 0) {
-	// 	LOG_ERR("Unable to set CD pin to Enable");
-	// 	return status;
-	// }
 
 	if(bq25120_device_reset(dev))
 		return -EIO;
 	/* Give time to driver to reset */
 	k_msleep(50);
-			
+	/*Set LDO and SYS Output voltages*/
+	/*Can be initialized via config variable or DTS*/
+#ifdef CONFIG_BQ25120_SYS_MV
+	rslt |=bq25120_set_sys_vout(dev,CONFIG_BQ25120_SYS_MV);
+#else
+	rslt |=bq25120_set_sys_vout(dev,cfg->sys_vout_mv);
+#endif
+#ifdef CONFIG_BQ25120_LDO_MV
+	rslt |=bq25120_set_ls_ldo(dev,CONFIG_BQ25120_LDO_MV);
+#else
+	rslt |=bq25120_set_ls_ldo(dev,cfg->ls_ldo_mv);
+#endif
 	/* Set BQ normal operation mode:*/
-	rslt |= bq25120_set_op_mode(dev,BQ25120_NORMAL_OP_ENABLE);
+	rslt |= bq25120_set_op_mode_normal(dev);
 
 	/*set battery regulation voltage as per configured value in DTS*/
 	bq25120_set_bat_reg_mv(dev, cfg->bat_reg_mv);
@@ -535,8 +766,17 @@ static int bq25120_init(const struct device *dev)
 
 	/*Set pre-charging and termination current limit as per configured value in DTS*/
 	rslt |= bq25120_set_ipreterm(dev, cfg->ipreterm_ua);
+
+	/*initialize MR pushbutton related features*/
+	rslt |= bq25120_init_pb(dev);
+
 	bq25120_get_status(dev, &status);
 	bq25120_get_fault(dev, &fault);
+
+	/*Enable charging if Vin is healthy, or HiZ mode if on battery
+	Note that SYS and LDO will continue to be powered by Battery in HiZ*/
+	bq25120_set_cd_state(dev, BQ25120_CD_PIN_DISABLE);
+
 	if(rslt !=0)
 	{
 		LOG_INF("BQ25120 configured with errors: status %x fault %x",status,fault);
@@ -558,11 +798,25 @@ static const struct sensor_driver_api bq25120_batlevel_api = {
 const static struct bq25120_cfg bq25120_cfg_0index = {
 	.bus = I2C_DT_SPEC_INST_GET(0),
 	.cd_gpios = GPIO_DT_SPEC_INST_GET(0, cd_gpios),
+	.lsctrl_gpios = GPIO_DT_SPEC_INST_GET_OR(0, lsctrl_gpios,{}),
+	.sys_vout_mv =DT_PROP(DT_INST(0,DT_DRV_COMPAT),sys_vout_mv),
+	.int_gpios = GPIO_DT_SPEC_INST_GET_OR(0, int_gpios,{}),
+	.reset_gpios = GPIO_DT_SPEC_INST_GET_OR(0, reset_gpios,{}),
+	.ls_ldo_mv =  DT_PROP(DT_INST(0,DT_DRV_COMPAT),ls_ldo_mv),
 	.bat_reg_mv = DT_PROP(DT_INST(0,DT_DRV_COMPAT),bat_reg_mv),
 	.ilim_ma = DT_PROP(DT_INST(0,DT_DRV_COMPAT),ilim_ma),
 	.bat_uvlo_mv = DT_PROP(DT_INST(0,DT_DRV_COMPAT),bat_uvlo_mv),
 	.ichagre_ma = DT_PROP(DT_INST(0,DT_DRV_COMPAT),icharge_ma),
 	.ipreterm_ua = DT_PROP(DT_INST(0,DT_DRV_COMPAT),ipreterm_ua),
+	.wake1_ms = DT_PROP(DT_INST(0,DT_DRV_COMPAT),wake1_ms), 
+	.wake2_ms = DT_PROP(DT_INST(0,DT_DRV_COMPAT),wake2_ms), 
+	.reset_s = DT_PROP(DT_INST(0,DT_DRV_COMPAT),reset_s), 
+	.mrrec = DT_PROP(DT_INST(0,DT_DRV_COMPAT),mrrec),
+	.mrreset_vin = DT_PROP(DT_INST(0,DT_DRV_COMPAT),mrreset_vin),
+	.timer_int_en = DT_PROP(DT_INST(0,DT_DRV_COMPAT),timer_int_en),
+    .ts_int_en = DT_PROP(DT_INST(0,DT_DRV_COMPAT),ts_int_en),
+	.charge_int_en = DT_PROP(DT_INST(0,DT_DRV_COMPAT),charge_int_en),	
+	.pg_mr = DT_PROP(DT_INST(0,DT_DRV_COMPAT),pg_mr),
 };
 
 static struct bq25120_data bq25120_data_0index = {0};

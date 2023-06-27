@@ -1,0 +1,72 @@
+# BOSCH-APP31 board configuration
+#  Copyright (c) 2023 Bosch Sensortec GmbH
+# SPDX-License-Identifier: Apache-2.0
+# INFO:
+# Kconfig.defconfig => invisible symbols
+# <board>_defconfig => visible symbols
+
+CONFIG_SOC_SERIES_NRF52X=y
+CONFIG_SOC_NRF52840_QIAA=y
+CONFIG_BOARD_BOSCH_APP31=y
+
+#Information returned by coines_get_board_info() for APP3.1
+CONFIG_COINES_BOARD_ID=5
+CONFIG_COINES_HW_ID=17
+CONFIG_COINES_SW_ID=16
+
+# Enable MPU
+CONFIG_ARM_MPU=y
+ 
+# Enable hardware stack protection
+CONFIG_HW_STACK_PROTECTION=y
+ 
+# enable GPIO
+CONFIG_GPIO=y
+
+#Enable Console 
+CONFIG_SERIAL=y
+CONFIG_CONSOLE=y
+CONFIG_UART_LINE_CTRL=n
+
+#Enable USB for console
+CONFIG_USB_DEVICE_STACK=y
+CONFIG_USB_CDC_ACM=y
+CONFIG_UART_ASYNC_API=y
+
+# Enable Segger RTT for logging (only)
+CONFIG_USE_SEGGER_RTT=y
+ 
+#Use RTT for logging, and USB UART for Console
+CONFIG_LOG_BACKEND_RTT=y
+CONFIG_LOG_BACKEND_UART=n
+CONFIG_RTT_CONSOLE=n
+CONFIG_UART_CONSOLE=y
+
+CONFIG_USB_DEVICE_PRODUCT="Bosch Application Board 3.1"
+CONFIG_USB_DEVICE_VID=0x108C
+CONFIG_USB_DEVICE_PID=0xAB3C
+#enable auto launch of USB driver, so that console is available by default
+CONFIG_BOSCH_USB_AUTO_START=y
+ 
+#Disable the UARTE0 in default project configuration
+#URTE1 was enabled for EEPROM reading via serial-w1 1-wire driver
+#not reqd now
+CONFIG_NRFX_UARTE0=n
+#CONFIG_NRFX_UARTE1=y
+#CONFIG_UART_NRFX=y
+CONFIG_NRFX_UARTE1=n
+CONFIG_UART_NRFX=n
+ 
+# additional board options
+# Disable reset pin, to use TB1 & TB2 as normal buttons
+CONFIG_GPIO_AS_PINRESET=n
+CONFIG_UART_INTERRUPT_DRIVEN=y
+#enable the pinctrl drivers for spi,i2c etc 
+CONFIG_PINCTRL=y
+
+#The 1-Wire driver for Shuttle PROM uses NRFX Timer 1 by default
+#on APP31. To change the timer, modify the w1 node in board DTS or in 
+#a DTS overlay, and enable the new timer
+#dynamic interrupts are also required by the 1-wire driver
+CONFIG_NRFX_TIMER1=y
+CONFIG_DYNAMIC_INTERRUPTS=y

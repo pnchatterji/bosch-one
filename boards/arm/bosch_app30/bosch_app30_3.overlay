@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2023 Bosch Sensortec GmbH
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Overlay Device Tree Definitions for Bosch Sensortec Application Board 3.0 (Revision 1)
+ *
+ * Refer the note on Revisions in bosch_app30.dts for details 
+*/
+
+#define BOSCH_APP30_REV3
+#include "bosch_app30_revs.dtsi"

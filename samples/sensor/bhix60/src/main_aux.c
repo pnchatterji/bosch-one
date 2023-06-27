@@ -18,7 +18,7 @@
 Since this sample uses BME688, BMM150, BMP390 as slave to BHI260, a different firmware 
 has to be uploaded for Nicla and for BHIx60 shuttle board as the connection of these 
 slave devices is different on the two boards (SPI v/s I2C)*/
-#if defined(CONFIG_BOARD_BST_ARDUINO_NICLA) 
+#if defined(CONFIG_BOARD_BOSCH_NICLA_SENSE) 
 # if !defined(CONFIG_BHIX60_UPLOAD_FW_TO_FLASH) ||defined(CONFIG_BHIX60_UPLOAD_FW_TO_RAM)
 #    error 	"CONFIG_BHIX60_UPLOAD_FW_TO_FLASH Should be set for this firmware"
 # endif 

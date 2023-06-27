@@ -120,7 +120,7 @@ In summary, the general procedure is as follows:
 
 ## Using *Bosch One* boards in *VS Code*
 
-The *bosch-one* specific boards defined in the boards sub-directory (e.g. bst_ab3_nrf52840 and bst_arduino_nicla) are automatically
+The *bosch-one* specific boards defined in the boards sub-directory (e.g. bosch_app30 and bosch_nicla_sense) are automatically
 integrated into the Zephyr build system after *bosch-one* module is installed as described above.
 
 If these boards are not visible inside *VS Code* when creating a new build configuration, it may be necessary to do the following:

@@ -34,6 +34,9 @@ extern "C"
 /*! Device Id of w25n02jwtbig */
 #define W25N02JW_DEVICE_ID        0xBF22
 
+/*! Device Id of w25n02kwzeir */
+#define W25N02KW_DEVICE_ID		  0xBA22 
+
 /*! Manufacturer id of w25n01gwtbig */
 #define W25_MANUFACTURER_ID           0xEF
 

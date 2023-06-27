@@ -1,0 +1,139 @@
+/*
+ * Copyright (c) 2023 Bosch Sensortec GmbH
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+&pinctrl {
+
+	i2c0_default: i2c0_default {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 0, 29)>,
+				<NRF_PSEL(TWIM_SCL, 0, 26)>;
+		};
+	};
+
+	i2c0_sleep: i2c0_sleep {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 0, 29)>,
+				<NRF_PSEL(TWIM_SCL, 0, 26)>;
+			low-power-enable;
+		};
+	};
+
+	i2c1_primary_default: i2c1_primary_default {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 0, 6)>,
+				<NRF_PSEL(TWIM_SCL, 0, 16)>;
+		};
+	};
+
+	i2c1_primary_sleep: i2c1_primary_sleep {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 0, 6)>,
+				<NRF_PSEL(TWIM_SCL, 0, 16)>;
+			low-power-enable;
+		};
+	};
+
+	i2c1_aux_default: i2c1_aux_default {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 0, 13)>,
+				<NRF_PSEL(TWIM_SCL, 0, 14)>;
+		};
+	};
+
+	i2c1_aux_sleep: i2c1_aux_sleep {
+		group1 {
+			psels = <NRF_PSEL(TWIM_SDA, 0, 13)>,
+				<NRF_PSEL(TWIM_SCL, 0, 14)>;
+			low-power-enable;
+		};
+	};
+
+	spi0_default: spi0_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 0, 27)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 26)>,
+				<NRF_PSEL(SPIM_MISO, 0, 29)>;
+		};
+	};
+
+	spi0_sleep: spi0_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 0, 27)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 26)>,
+				<NRF_PSEL(SPIM_MISO, 0, 29)>;
+			low-power-enable;
+		};
+	};
+
+	spi1_primary_default: spi1_primary_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 0, 16)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 6)>,
+				<NRF_PSEL(SPIM_MISO, 0, 15)>;
+		};
+	};
+
+	spi1_primary_sleep: spi1_primary_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 0, 16)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 6)>,
+				<NRF_PSEL(SPIM_MISO, 0, 15)>;
+			low-power-enable;
+		};
+	};
+
+	spi2_primary_default: spi2_primary_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 0, 16)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 6)>,
+				<NRF_PSEL(SPIM_MISO, 0, 15)>;
+		};
+	};
+
+	spi2_primary_sleep: spi2_primary_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 0, 16)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 6)>,
+				<NRF_PSEL(SPIM_MISO, 0, 15)>;
+			low-power-enable;
+		};
+	};
+
+	
+	spi2_aux_default: spi2_aux_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 2)>,
+				<NRF_PSEL(SPIM_MOSI, 1, 10)>,
+				<NRF_PSEL(SPIM_MISO, 1, 11)>;
+		};
+	};
+
+	spi2_aux_sleep: spi2_aux_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 1, 2)>,
+				<NRF_PSEL(SPIM_MOSI, 1, 10)>,
+				<NRF_PSEL(SPIM_MISO, 1, 11)>;
+			low-power-enable;
+		};
+	};
+
+	spi3_default: spi3_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 0, 19)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 20)>,
+				<NRF_PSEL(SPIM_MISO, 0, 21)>;
+		};
+	};
+
+	spi3_sleep: spi3_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_SCK, 0, 19)>,
+				<NRF_PSEL(SPIM_MOSI, 0, 20)>,
+				<NRF_PSEL(SPIM_MISO, 0, 21)>;
+			low-power-enable;
+		};
+	};
+
+};

@@ -9,6 +9,31 @@ properties:
         required: true
         description: Host pin connected to BQ25120 Chip Disable (CD) pin
 
+    lsctrl-gpios:
+        type: phandle-array
+        required: false
+        description: Host pin connected to BQ25120 LSCTRL pin, if any
+
+    int-gpios:
+        type: phandle-array
+        required: false
+        description: Host pin connected to BQ25120 INT pin, if any
+
+    reset-gpios:
+        type: phandle-array
+        required: false
+        description: Host pin connected to BQ25120 RESET pin, if any
+
+    sys_vout_mv:
+        type: int
+        required: true
+        description: Output voltage of SYS in mv - min 1100, max 3300, 0 to disable (0,1.1-3.3V)
+
+    ls_ldo_mv:
+        type: int
+        required: true
+        description: Output voltage of LS/LDO in mv - min 800, max 3300, 0 to disable (0,0.8-3.3V)
+
     bat_reg_mv:
         type: int
         required: true
@@ -35,3 +60,57 @@ properties:
         description: |
             pre-charging current/terminating current in uA (500uA to 37000uA (37mA), Disable Termination:0)
             This is charging current at start and end of charging, usually 10% of peak
+
+    mrreset_vin:
+        type: int
+        required: false
+        default: 0
+        description: Reset when Reset time expires 0-Always 1-When Vin is healthy
+
+    wake1_ms:
+        type: int
+        required: false
+        default: 0
+        description: Wake1 time setting in ms - 50 or 500 ms, 0 to disable 
+
+    wake2_ms:
+        type: int
+        required: false
+        default: 0
+        description: Wake2 time setting in ms - 1000 or 1500 ms, 0 to disable 
+
+    reset_s:
+        type: int
+        required: false
+        default: 0
+        description: Reset time setting in Sec - 4, 8, 10 or 14, 0 to disable 
+    
+    mrrec:
+        type: int
+        required: false
+        default: 0
+        description: After Reset, device enters 0 - Ship mode, 1 - Hi-Z Mode
+
+    timer_int_en:
+        type: int
+        required: false
+        default: 0
+        description: Enable interrupt signalling of timer events
+
+    ts_int_en:
+        type: int
+        required: false
+        default: 0
+        description: Enable interrupt signalling of temperature sensor (TS) events
+
+    charge_int_en:
+        type: int
+        required: false
+        default: 0
+        description: Enable interrupt signalling of charging events
+
+    pg_mr:
+        type: int
+        required: false
+        default: 0
+        description: Use PG Output as 0-Power Good Status, 1-MR Input Status

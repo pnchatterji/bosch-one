@@ -131,7 +131,9 @@ w25_nand_error_t w25_init(uint16_t *device_id)
         ret_code = W25_NAND_INITIALIZED;
 
     }
-    else if ((info.device_id == W25N02JW_DEVICE_ID) && (info.mfg_id == W25_MANUFACTURER_ID))
+	else if (((info.device_id == W25N02JW_DEVICE_ID) || 
+			(info.device_id == W25N02KW_DEVICE_ID)) && 
+			(info.mfg_id == W25_MANUFACTURER_ID))
     {
         w25n02jw_init_protect_reg();
         w25n02jw_init_config_reg();
@@ -188,40 +190,27 @@ static void w25_device_reset(void)
 /*!
  * @brief       This function initialises the spi module
  *
- * @retval      spi handle
+ * @retval      spi handle (1 on success, 0 on error)
  */
 
 uint8_t w25_spi_init()
 {
-    int ret;
-    const struct device *dev=NULL;
-    gpio_pin_t gpio_pin=0;
-    gpio_flags_t gpio_flags=0;
+    int ret=0;
 
-    //dev = device_get_binding(DT_GPIO_LABEL(DT_NODELABEL(nandflashspi), hold_gpios)); //depricted
-    dev = DEVICE_DT_GET(DT_GPIO_CTLR(DT_NODELABEL(nandflashspi), hold_gpios));
-	if (dev == NULL) {
-		return 0;
-	}
-    gpio_pin = DT_GPIO_PIN(DT_NODELABEL(nandflashspi), hold_gpios);
-	gpio_flags = DT_GPIO_FLAGS(DT_NODELABEL(nandflashspi), hold_gpios);
-	ret = gpio_pin_configure(dev, gpio_pin, GPIO_OUTPUT_ACTIVE | gpio_flags);
-    if(ret!=0)
+	struct gpio_dt_spec ios_hold = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(nandflashspi),hold_gpios,{});
+    if(ios_hold.port)
     {
-        return 0;
+    	ret |= gpio_pin_configure_dt(&ios_hold, GPIO_OUTPUT_ACTIVE); 
     }
 
-    //dev = device_get_binding(DT_GPIO_LABEL(DT_NODELABEL(nandflashspi), wp_gpios)); //depricated
-    dev = DEVICE_DT_GET(DT_GPIO_CTLR(DT_NODELABEL(nandflashspi), wp_gpios));
-    gpio_pin = DT_GPIO_PIN(DT_NODELABEL(nandflashspi), wp_gpios);
-	gpio_flags = DT_GPIO_FLAGS(DT_NODELABEL(nandflashspi), wp_gpios);
-	ret = gpio_pin_configure(dev, gpio_pin, GPIO_OUTPUT_ACTIVE | gpio_flags); 
-    if(ret!=0)
+	struct gpio_dt_spec ios_wp = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(nandflashspi),wp_gpios,{});
+    if(ios_wp.port)
     {
-        return 0;
+    	ret |= gpio_pin_configure_dt(&ios_wp, GPIO_OUTPUT_ACTIVE); 
     }
 
-    return 1;
+
+    return (ret==0)?1:0;
 }
 
 static uint8_t w25_read_reg(w25_reg_t reg)

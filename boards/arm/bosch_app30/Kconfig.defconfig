@@ -1,0 +1,32 @@
+# Copyright (c) 2021 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+# INFO:
+# Kconfig.defconfig => invisible symbols
+# <board>_defconfig => visible symbols
+
+if BOARD_BOSCH_APP30
+
+config BOARD
+	default "bosch_app30"
+
+config BT_CTLR
+   default BT
+
+config FLASH_LOAD_OFFSET
+	default 0x30000
+
+config BOSCH_SHUTTLE_VDD_MV
+	default 1800
+
+if USB_DEVICE_STACK
+config UART_LINE_CTRL
+	default y
+config BOSCH_USB_AUTO_START
+	default y
+endif # USB_DEVICE_STACK
+
+config IEEE802154_NRF5
+	default y
+	depends on IEEE802154
+
+endif
